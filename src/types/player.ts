@@ -15,3 +15,17 @@ export type PlayerProfile = {
 };
 
 type PlayerStatus = "active" | "removed";
+
+export interface DistributionParameters {
+    N: number;
+    mean: number;
+    stdDev: number;
+}
+
+export type DistributionInput = DistributionParameters | number[];
+
+
+export interface PlayerParameters {
+    ratings?: number[];
+    name?: string;
+}

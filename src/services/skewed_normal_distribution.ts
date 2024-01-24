@@ -9,10 +9,10 @@ class SkewedNormalDistribution {
     private skewness: number;
     private probabilities: number[];
 
-    constructor(ratings: number[]) {
-        this.mean = jstat.mean(ratings);
-        this.stdDev = jstat.stdev(ratings);
-        this.skewness = this.CalculateSkewness(ratings);
+    constructor(input: number[]) {
+        this.mean = jstat.mean(input);
+        this.stdDev = jstat.stdev(input);
+        this.skewness = this.calculateSkewness(input);
 
         let accumulator = 0;
         const xValues = jstat.seq(0, MAX_ELO, MAX_ELO);
@@ -23,7 +23,7 @@ class SkewedNormalDistribution {
         });
     }
 
-    public CalculateSkewness(ratings: number[]): number {
+    public calculateSkewness(ratings: number[]): number {
         let skewness = 0;
         const N = ratings.length;
         const SCALE = ELO_RATE_OF_CHANGE * N;
@@ -49,6 +49,14 @@ class SkewedNormalDistribution {
 
     public getMean(): number {
         return this.mean;
+    }
+
+    public getStdDev(): number {
+        return this.stdDev;
+    }
+
+    public getSkewness(): number {
+        return this.skewness;
     }
 
     public cdf(probability: number): number {
