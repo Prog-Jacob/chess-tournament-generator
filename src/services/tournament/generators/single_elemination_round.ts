@@ -29,6 +29,17 @@ abstract class SingleEliminationGenerator extends TournamentGenerator {
     public static getNumberOfRounds(format: SingleEliminationFormat): number {
         return format.matches * 2;
     }
+
+    public static getNumberOfPlayers(
+        format: SingleEliminationFormat,
+        numberOfPlayers: number
+    ): number {
+        for (let i = 0; i < format.matches; i++) {
+            numberOfPlayers = Math.floor((numberOfPlayers + 1) / 2);
+        }
+
+        return numberOfPlayers;
+    }
 }
 
 export default SingleEliminationGenerator;

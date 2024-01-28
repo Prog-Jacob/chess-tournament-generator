@@ -1,20 +1,42 @@
-import jstat from "jstat";
-import { DistributionInput } from "../types/player";
 import SkewedNormalDistribution from "./skewed_normal_distribution";
+import { DistributionInput } from "../types/player";
+
+function generateEloRatings(
+    numOfGames: number,
+    initialRating: number,
+    growthRate: number
+): number[] {
+    let rating = initialRating;
+    const ratings: number[] = [];
+
+    for (let i = 0; i < numOfGames; i++) {
+        const growthFactor = Math.floor(Math.random() * 10) + 2;
+        let growth = Math.random() < growthRate ? growthFactor : -growthFactor;
+
+        while (growth + rating > 2900 || growth + rating < 400) {
+            growth = Math.random() < growthRate ? growthFactor : -growthFactor;
+        }
+
+        rating += growth;
+        ratings[i] = rating;
+    }
+
+    return ratings;
+}
 
 class Player extends SkewedNormalDistribution {
     private name: string;
     private ratings: number[];
     constructor(input?: DistributionInput, name?: string) {
         if (!(input instanceof Array)) {
-            const { N, mean, stdDev } = input
+            const { initialRating, growthRate } = input
                 ? input
                 : {
-                    mean: Math.floor(Math.random() * 2_000) + 800,
-                    stdDev: Math.floor(Math.random() * 200),
-                    N: Math.floor(Math.random() * 40) + 10,
-                };
-            input = generateRatings(N, mean, stdDev, Math.random() * 2.5 - 1);
+                      initialRating: Math.floor(Math.random() * 2_000) + 500,
+                      growthRate: Math.random() + 0.1,
+                  };
+            const N = Math.floor(Math.random() * 50) + 25;
+            input = generateEloRatings(N, initialRating, growthRate);
         }
 
         super(input);
@@ -29,20 +51,6 @@ class Player extends SkewedNormalDistribution {
     public getRatings(): number[] {
         return this.ratings;
     }
-}
-
-function generateRatings(N: number, mean: number, stdDev: number, trend: number): number[] {
-    const x = Array.from({ length: N }, (_, i) => i);
-    const values = x.map((value, i) => trend * value * (1 + i * Math.E ** (Math.random()) / N));
-
-    const currentMean = jstat.mean(values);
-    const currentStdDev = jstat.stdev(values);
-
-    values.forEach((value, i) => {
-        values[i] = mean + ((value - currentMean) * stdDev) / currentStdDev;
-    });
-
-    return values;
 }
 
 export default Player;

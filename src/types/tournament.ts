@@ -10,4 +10,5 @@ export abstract class TournamentGenerator {
         maxRounds: number
     ): boolean;
     abstract getNumberOfRounds(format: Format): number;
+    abstract getNumberOfPlayers(format: Format, players?: number): number;
 }
