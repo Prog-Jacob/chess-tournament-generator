@@ -23,7 +23,7 @@ class UniversalManager {
         if (player1 < player2) {
             return this.matchUps.get([player1, player2]) || 0;
         } else {
-            return 1 - (this.matchUps.get([player2, player1]) || 0);
+            return 1 - this.matchUps.get([player2, player1])!;
         }
     }
 

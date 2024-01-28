@@ -8,6 +8,7 @@ import { Tournament as TournamentType } from "./first_generation";
 import Tournament from "../tournament";
 import { PlayerProfile } from "../../types/player";
 import UniversalManager from "../tournament/managers/universal_manager";
+import Player from "../player";
 
 export interface Sample {
     formats: TournamentType;
@@ -19,8 +20,9 @@ class GeneticAlgorithm {
     private playersRanked: Map<PlayerProfile, number>;
     private generationSize: number;
     private mode: string;
-    private tournaments: TournamentType[];
-    private generation: Sample[];
+    private numberOfRounds: number;
+    private generation: Set<Sample>;
+    private fittest: Sample[] = [];
 
     constructor(
         players: PlayerProfile[],
@@ -34,28 +36,24 @@ class GeneticAlgorithm {
                 ? b.player.invCDF(0.5) - a.player.invCDF(0.5)
                 : a.player.invCDF(0.5) - b.player.invCDF(0.5)
         );
+
         this.mode = mode;
         this.generationSize = generationSize;
-        this.tournaments = generateSamples(
-            generationSize,
-            players.length,
-            numberOfRounds
-        );
-        this.generation = this.tournaments.map((tournament) =>
-            this.preprocessFormats(tournament, players.length)
-        );
+        this.numberOfRounds = numberOfRounds;
         this.playersRanked = new Map(
             this.players.map((player, index) => [player, index])
         );
-        this.selectFittest();
-        console.log("Initialized genetic algorithm");
+        this.generation = new Set();
     }
 
     private selectFittest() {
         const fittest: [Sample, number][] = [];
 
         for (const { formats, rounds } of this.generation) {
-            const tournament = new Tournament(this.players, formats);
+            const tournament = new Tournament(
+                this.players.map((p) => ({ ...p })),
+                formats
+            );
             const result = tournament.getTournamentResult();
             const fitness = result.reduce(
                 (acc, player, index) =>
@@ -65,24 +63,30 @@ class GeneticAlgorithm {
             fittest.push([{ formats, rounds }, fitness]);
         }
 
-        this.generation = fittest
-            .sort((a, b) => b[1] - a[1])
-            .map((x) => x[0])
-            .slice(-this.generationSize);
+        this.fittest = fittest
+            .sort(
+                (a, b) =>
+                    a[1] - b[1] || a[0].formats.length - b[0].formats.length
+            )
+            .slice(0, this.generationSize)
+            .map((x) => x[0]);
     }
 
     private crossover() {
-        const newGeneration: [Sample, number][] = [];
+        const generation = [...this.fittest];
+        const newGeneration: Map<Sample, number> = new Map();
 
-        for (let i = 0; i < this.generation.length; i++) {
-            const { formats, rounds } = this.generation[i];
-            for (let j = i + 1; j < this.generation.length; j++) {
-                const { formats: formats2, rounds: rounds2 } =
-                    this.generation[j];
+        for (let i = 0; i < generation.length; i++) {
+            const { formats, rounds } = generation[i];
+
+            for (let j = i + 1; j < generation.length; j++) {
+                const { formats: formats2, rounds: rounds2 } = generation[j];
+
                 for (const [round, [idx, players]] of rounds) {
                     if (!rounds2.has(round)) continue;
                     const [idx2, players2] = rounds2.get(round)!;
-                    if (players >= players2) {
+
+                    if (players == players2) {
                         const newFormat = [
                             ...formats.slice(0, idx),
                             ...formats2.slice(idx2),
@@ -91,40 +95,52 @@ class GeneticAlgorithm {
                             newFormat,
                             this.players.length
                         );
-                        newGeneration.push([newRounds, i + j]);
-                    }
-                    if (players <= players2) {
-                        const newFormat = [
-                            ...formats.slice(idx),
-                            ...formats2.slice(0, idx2),
-                        ];
-                        const newRounds = this.preprocessFormats(
-                            newFormat,
-                            this.players.length
+                        const minIdx = Math.min(
+                            i + j,
+                            newGeneration.get(newRounds) || Infinity
                         );
-                        newGeneration.push([newRounds, i + j]);
+                        newGeneration.set(newRounds, minIdx);
                     }
                 }
             }
 
-            this.generation = newGeneration
-                .sort((a, b) => a[1] - b[1])
-                .map((x) => x[0])
-                .slice(-this.generationSize);
+            this.generation = new Set(
+                Array.from(newGeneration)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(-this.generationSize)
+                    .map((x) => x[0])
+            );
         }
     }
 
     public advanceGenerationBy(generation: number) {
-        console.log(this.generation.length);
         for (let i = 0; i < generation; i++) {
-            // this.crossover();
+            while (this.generation.size < this.generationSize) {
+                generateSamples(
+                    this.generationSize - this.generation.size,
+                    this.players.length,
+                    this.numberOfRounds
+                ).forEach((tournament) =>
+                    this.generation.add(
+                        this.preprocessFormats(tournament, this.players.length)
+                    )
+                );
+            }
+            this.crossover();
             this.selectFittest();
-            console.log(this.generation.length);
         }
     }
 
     public getFormat(): TournamentType {
-        return this.generation[0].formats;
+        return this.fittest[0]?.formats || [];
+    }
+
+    public getTournamentResults(): Player[] {
+        const tournament = new Tournament(
+            this.players.map((p) => ({ ...p })),
+            this.getFormat()
+        );
+        return tournament.getTournamentResult().map((p) => p.player);
     }
 
     private preprocessFormats(
@@ -132,6 +148,7 @@ class GeneticAlgorithm {
         players: number
     ): Sample {
         let round = 0;
+        let nextPlayers;
         const rounds = new Map<number, [number, number]>();
 
         for (let i = 0; i < formats.length - 1; i++) {
@@ -139,26 +156,29 @@ class GeneticAlgorithm {
                 round += RoundRobinGenerator.getNumberOfRounds(
                     formats[i] as RoundRobinFormat
                 );
-                players -= RoundRobinGenerator.getNumberOfPlayers(
+                nextPlayers = RoundRobinGenerator.getNumberOfPlayers(
                     formats[i] as RoundRobinFormat
                 );
             } else if (isSwiss(formats[i])) {
                 round += SwissGenerator.getNumberOfRounds(
                     formats[i] as SwissFormat
                 );
-                players -= SwissGenerator.getNumberOfPlayers(
+                nextPlayers = SwissGenerator.getNumberOfPlayers(
                     formats[i] as SwissFormat
                 );
             } else {
                 round += SingleEliminationGenerator.getNumberOfRounds(
                     formats[i]
                 );
-                players -= SingleEliminationGenerator.getNumberOfPlayers(
+                nextPlayers = SingleEliminationGenerator.getNumberOfPlayers(
                     formats[i],
                     players
                 );
             }
-
+            if (round > this.numberOfRounds || nextPlayers >= players) {
+                return { formats: [], rounds: new Map() };
+            }
+            players = nextPlayers;
             rounds.set(round, [i + 1, players]);
         }
 

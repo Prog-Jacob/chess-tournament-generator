@@ -41,7 +41,7 @@ export function generateSamples(
             return tournaments;
         }
 
-        for (const generator of shuffleArray(getGenerators(players))) {
+        for (const generator of getGenerators()) {
             if (generator.canGenerateFormat(players, rounds)) {
                 const format = generator.generateRandomFormat(players, rounds);
                 const nextTournaments = dp(
@@ -62,17 +62,17 @@ export function generateSamples(
     }
 
     dp(0, numberOfPlayers, []);
-    console.log("Generating samples... ", totalTournaments.size);
     return shuffleArray([...totalTournaments]);
 }
 
-function getGenerators(players: number): TournamentGenerator[] {
-    const generators = [RoundRobinGenerator];
-    generators.push(...Array(Math.floor(players / 2)).fill(SwissGenerator));
-    generators.push(
-        ...Array(Math.floor(Math.log2(players) / 2)).fill(
-            SingleEliminationGenerator
-        )
-    );
-    return generators;
+function getGenerators(): TournamentGenerator[] {
+    const generators = [
+        SwissGenerator,
+        SwissGenerator,
+        RoundRobinGenerator,
+        RoundRobinGenerator,
+        SingleEliminationGenerator,
+        SingleEliminationGenerator,
+    ];
+    return shuffleArray(generators);
 }

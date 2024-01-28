@@ -30,11 +30,14 @@ class Tournament {
             }
 
             manager.executeTournament();
-            this.winners = manager.getWinners();
             this.losers.push(...manager.getLosers());
+            this.winners = manager.getWinners().map((profile) => ({
+                ...profile,
+                gamesWon: 0,
+                didGoThorough: false,
+            }));
         }
 
-        console.log("Tournament was calculated...");
         return [...this.losers, ...this.winners].reverse();
     }
 }

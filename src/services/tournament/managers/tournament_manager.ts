@@ -10,6 +10,8 @@ abstract class TournamentManager {
     protected round: number;
 
     constructor(players: PlayerProfile[], format: Format) {
+        if (players.some((p) => p.didGoThorough))
+            throw new Error("Got bye players");
         this.profiles = new Map(players.map((player) => [player.id, player]));
         this.pairings = new Map<number, number>();
         this.format = format;
