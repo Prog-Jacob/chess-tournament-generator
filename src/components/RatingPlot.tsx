@@ -16,14 +16,14 @@ const PerformanceDistributionPlot: React.FC<
     const [plotData, setPlotData] = useState<Plotly.Data[]>([]);
 
     useEffect(() => {
-        const l = player.cdf(0.001);
-        const r = player.cdf(0.999);
+        const l = player.invCDF(0.001);
+        const r = player.invCDF(0.999);
         const ratings = player.getRatings();
         const min = Math.min(...ratings, l);
         const max = Math.max(...ratings, r);
         const range = jstat.seq(min, max, ratings.length);
 
-        const xPerformance = jstat.seq(min, max, max - min + 1);
+        const xPerformance = jstat.seq(min, max, 100);
         const yPerformance = xPerformance.map((x: number) =>
             player.getProbability(x)
         );
@@ -41,7 +41,8 @@ const PerformanceDistributionPlot: React.FC<
                 name: "Performance PDF",
                 yaxis: "y1",
                 hovertemplate:
-                    "P(X <= %{x} ELO) is %{text:.2f}%<br>" + "<extra></extra>",
+                    "P(X <= %{x:.0f} ELO) is %{text:.2f}%<br>" +
+                    "<extra></extra>",
                 text: CDFValues,
                 hoverlabel: { bgcolor: "white" },
             },
@@ -55,8 +56,8 @@ const PerformanceDistributionPlot: React.FC<
                 hoverinfo: "skip",
             },
             {
-                x: [player.cdf(0.5)],
-                y: [player.getProbability(player.cdf(0.5))],
+                x: [player.invCDF(0.5)],
+                y: [player.getProbability(player.invCDF(0.5))],
                 mode: "markers",
                 type: "scatter",
                 marker: { size: 10 },
@@ -72,7 +73,7 @@ const PerformanceDistributionPlot: React.FC<
                 name: "Rating",
                 yaxis: "y2",
                 hoverinfo: "y",
-                hovertemplate: "%{y} ELO" + "<extra></extra>",
+                hovertemplate: "%{y:.0f} ELO" + "<extra></extra>",
             },
         ]);
     }, []);

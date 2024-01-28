@@ -7,6 +7,9 @@
 pnpm-lock.yaml
 package-lock.json
 
+# schemtics
+REACTME.md
+
 # testing
 /coverage
 
