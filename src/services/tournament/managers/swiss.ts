@@ -1,18 +1,17 @@
 import { SingleEliminationFormat, SwissFormat } from "../../../types/formats";
 import { PlayerProfile } from "../../../types/player";
 import TournamentManager from "./tournament_manager";
-import Player from "../../player";
 
 class SwissManager extends TournamentManager {
     private isPlaying: Set<number>;
     private standings: PlayerProfile[];
     private gameHistory: Set<[number, number]>;
 
-    constructor(players: Player[], format: SingleEliminationFormat) {
+    constructor(players: PlayerProfile[], format: SingleEliminationFormat) {
         super(players, format);
         this.isPlaying = new Set();
         this.gameHistory = new Set();
-        this.standings = [...this.profiles];
+        this.standings = [...this.profiles.values()];
     }
 
     public generatePairings(): void {
@@ -51,7 +50,7 @@ class SwissManager extends TournamentManager {
     }
 
     public matchUp(player1: number, player2: number): number {
-        const winProbability = this.winProbability(player1, player2);
+        const winProbability = universalManager.matchUp(player1, player2);
         return Math.random() < winProbability ? player1 : player2;
     }
 
@@ -66,19 +65,19 @@ class SwissManager extends TournamentManager {
     }
 
     public updateStandings(): void {
-        this.standings = [...this.profiles].sort(
+        this.standings = [...this.profiles.values()].sort(
             (a, b) => b.gamesWon - a.gamesWon
         );
     }
 
-    public getLosers(): Player[] {
+    public getLosers(): PlayerProfile[] {
         this.generateStandings();
-        return this.losers.map((player) => player.player);
+        return [...this.losers];
     }
 
-    public getWinners(): Player[] {
+    public getWinners(): PlayerProfile[] {
         this.generateStandings();
-        return this.winners.map((player) => player.player);
+        return [...this.winners];
     }
 
     private generateStandings() {

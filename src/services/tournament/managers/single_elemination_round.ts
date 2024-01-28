@@ -1,12 +1,11 @@
 import { SingleEliminationFormat } from "../../../types/formats";
 import { PlayerProfile } from "../../../types/player";
 import TournamentManager from "./tournament_manager";
-import Player from "../../player";
 
 class SingleEliminationManager extends TournamentManager {
-    constructor(players: Player[], format: SingleEliminationFormat) {
+    constructor(players: PlayerProfile[], format: SingleEliminationFormat) {
         super(players, format);
-        this.winners = [...this.profiles];
+        this.winners = [...this.profiles.values()];
     }
 
     public generatePairings(): void {
@@ -23,7 +22,7 @@ class SingleEliminationManager extends TournamentManager {
                 standings.splice(i, 1);
                 this.playerWon(player);
                 player.didGoThorough = true;
-                this.profiles[player.id] = player;
+                this.profiles.set(player.id, player);
                 break;
             }
         }
@@ -36,7 +35,7 @@ class SingleEliminationManager extends TournamentManager {
     }
 
     public matchUp(player1: number, player2: number): number {
-        const winProbability = this.winProbability(player1, player2);
+        const winProbability = universalManager.matchUp(player1, player2);
         let match1 = Math.random() < winProbability;
         let match2 = Math.random() < winProbability;
 
@@ -62,15 +61,14 @@ class SingleEliminationManager extends TournamentManager {
 
     public updateStandings(): void {}
 
-    public getLosers(): Player[] {
-        return this.profiles
+    public getLosers(): PlayerProfile[] {
+        return [...this.profiles.values()]
             .filter((profile) => profile.status == "removed")
-            .sort((a, b) => a.gamesWon - b.gamesWon)
-            .map((profile) => profile.player);
+            .sort((a, b) => a.gamesWon - b.gamesWon);
     }
 
-    public getWinners(): Player[] {
-        return this.winners.map((profile) => profile.player);
+    public getWinners(): PlayerProfile[] {
+        return [...this.winners];
     }
 }
 

@@ -1,12 +1,13 @@
 import { RoundRobinFormat, SwissFormat } from "../../types/formats";
 import { isRobin, isSwiss } from "../../utils/tournament_types_map";
-import Player from "../player";
 import RoundRobinGenerator from "../tournament/generators/round_robin";
-import SingleEliminationGenerator from "../tournament/generators/single_elemination_round";
+import SingleEliminationGenerator from "../tournament/generators/single_elimination_round";
 import SwissGenerator from "../tournament/generators/swiss";
 import { generateSamples } from "./first_generation";
 import { Tournament as TournamentType } from "./first_generation";
 import Tournament from "../tournament";
+import { PlayerProfile } from "../../types/player";
+import UniversalManager from "../tournament/managers/universal_manager";
 
 export interface Sample {
     formats: TournamentType;
@@ -14,23 +15,24 @@ export interface Sample {
 }
 
 class GeneticAlgorithm {
-    private players: Player[];
-    private playersRanked: Map<Player, number>;
+    private players: PlayerProfile[];
+    private playersRanked: Map<PlayerProfile, number>;
     private generationSize: number;
     private mode: string;
     private tournaments: TournamentType[];
     private generation: Sample[];
 
     constructor(
-        players: Player[],
+        players: PlayerProfile[],
         generationSize: number,
         numberOfRounds: number,
         mode: string
     ) {
+        globalThis.universalManager = new UniversalManager(players);
         this.players = [...players].sort((a, b) =>
             mode == "Fair"
-                ? b.invCDF(0.5) - a.invCDF(0.5)
-                : a.invCDF(0.5) - b.invCDF(0.5)
+                ? b.player.invCDF(0.5) - a.player.invCDF(0.5)
+                : a.player.invCDF(0.5) - b.player.invCDF(0.5)
         );
         this.mode = mode;
         this.generationSize = generationSize;
@@ -46,10 +48,11 @@ class GeneticAlgorithm {
             this.players.map((player, index) => [player, index])
         );
         this.selectFittest();
+        console.log("Initialized genetic algorithm");
     }
 
     private selectFittest() {
-        let fittest: [Sample, number][] = [];
+        const fittest: [Sample, number][] = [];
 
         for (const { formats, rounds } of this.generation) {
             const tournament = new Tournament(this.players, formats);
@@ -62,7 +65,6 @@ class GeneticAlgorithm {
             fittest.push([{ formats, rounds }, fitness]);
         }
 
-        fittest = Array.from(new Set(fittest));
         this.generation = fittest
             .sort((a, b) => b[1] - a[1])
             .map((x) => x[0])
@@ -115,7 +117,7 @@ class GeneticAlgorithm {
     public advanceGenerationBy(generation: number) {
         console.log(this.generation.length);
         for (let i = 0; i < generation; i++) {
-            this.crossover();
+            // this.crossover();
             this.selectFittest();
             console.log(this.generation.length);
         }

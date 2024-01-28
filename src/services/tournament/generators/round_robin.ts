@@ -8,7 +8,7 @@ abstract class RoundRobinGenerator extends TournamentGenerator {
     ): boolean {
         const matches =
             numberOfPlayers % 2 == 0 ? numberOfPlayers - 1 : numberOfPlayers;
-        return numberOfPlayers > 1 && matches > 0 && matches <= maxRounds;
+        return numberOfPlayers > 1 && matches <= maxRounds;
     }
 
     public static generateRandomFormat(
