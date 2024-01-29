@@ -4,27 +4,36 @@ import { trapezoidalIntegration } from "../../../utils/integral";
 type PDFFunction = (x: number) => number;
 
 class UniversalManager {
+    private matchUps: number[][];
     private profiles: PlayerProfile[];
-    private matchUps: Map<[number, number], number> = new Map();
 
     constructor(players: PlayerProfile[]) {
         this.profiles = [...players];
+        this.matchUps = Array.from({ length: players.length }, () => []);
 
         for (let i = 0; i < players.length; i++) {
             for (let j = i + 1; j < players.length; j++) {
-                const p1 = Math.min(players[i].id, players[j].id);
-                const p2 = Math.max(players[i].id, players[j].id);
-                this.matchUps.set([p1, p2], this.winProbability(p1, p2));
+                if (i == j) continue;
+                const p1 = players[i].id;
+                const p2 = players[j].id;
+
+                const winProbability = this.winProbability(p1, p2);
+                this.matchUps[p2][p1] = 1 - winProbability;
+                this.matchUps[p1][p2] = winProbability;
             }
+        }
+
+        for (let i = 0; i < players.length; i++) {
+            console.log(this.profiles[i].name);
+            for (let j = 0; j < players.length; j++) {
+                console.log(this.profiles[j].name, this.matchUps[i][j]);
+            }
+            console.log("------------------");
         }
     }
 
     public matchUp(player1: number, player2: number): number {
-        if (player1 < player2) {
-            return this.matchUps.get([player1, player2]) || 0;
-        } else {
-            return 1 - this.matchUps.get([player2, player1])!;
-        }
+        return this.matchUps[player1][player2];
     }
 
     protected winProbability(player1: number, player2: number): number {
@@ -38,10 +47,11 @@ class UniversalManager {
                     (y: number) => player1PDF(x) * player2PDF(y),
                     a,
                     x,
-                    10
+                    50
                 ),
             a,
-            b
+            b,
+            75
         );
     }
 
@@ -58,6 +68,7 @@ class UniversalManager {
         const player2Distribution = this.profiles[player2].player;
         const player1PDF = (x: number) => player1Distribution.getProbability(x);
         const player2PDF = (x: number) => player2Distribution.getProbability(x);
+
         const a = Math.min(
             player1Distribution.invCDF(0.001),
             player2Distribution.invCDF(0.001)

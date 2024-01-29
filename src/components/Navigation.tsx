@@ -10,7 +10,7 @@ const Navigation = () => {
 
     const generateRandomData = () => {
         const players = [];
-        const N = Math.floor(Math.random() * 40) + 10;
+        const N = Math.floor(Math.random() * 20) + 10;
 
         for (let i = 0; i < N; i++) {
             const player = new Player();
