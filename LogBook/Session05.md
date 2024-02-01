@@ -15,3 +15,7 @@ In contemplating Plan C, an unexpected twist – Plan D entered the scene. The o
 #### Next Steps:
 
 The immediate focus for the next steps revolves around researching various chess tournament formats. Understanding their rules, structures, and criteria will lay the groundwork for the subsequent development of a program. Simultaneously, the main idea of the program needs to be defined – specifying the criteria or parameters that the program will optimize.
+
+---
+
+[← Previous](Session04.md) | [Next →](./Session06.md)

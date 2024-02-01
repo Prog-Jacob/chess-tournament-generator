@@ -23,3 +23,7 @@ Reflecting on the session emphasized the need for informed decision-making. Whil
 #### Next Steps:
 
 Looking ahead, the focus sharpens on refining the selected project. Specific goals, potential challenges, and the roadmap for implementation take center stage. Engaging with the chosen project sets the foundation for a focused and fruitful journey through the upcoming sessions.
+
+---
+
+[Next →](./Session02.md)

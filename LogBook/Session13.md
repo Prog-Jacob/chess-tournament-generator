@@ -31,3 +31,7 @@ After implementing the UI, I experimented with the app through the browser and c
 
 > Results Page:
 > ![Results page](./static/results.jpeg)
+
+---
+
+[← Previous](Session12.md) | [Next →](./Session14.md)

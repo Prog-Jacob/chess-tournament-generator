@@ -57,3 +57,7 @@ The genetic algorithm class has these features:
 #### Next Steps:
 
 Execution time of the program is not reasonable, yet. Also, it's still buggy and often raises undefined behavior. I should finalize these tweaks before proceeding with the UI.
+
+---
+
+[← Previous](Session10.md) | [Next →](./Session12.md)

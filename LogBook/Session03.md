@@ -22,3 +22,7 @@ In the face of mounting complexities and time constraints, a strategic pivot bec
 2. [Discovering faster matrix multiplication algorithms with reinforcement learning | Nature](https://www.nature.com/articles/s41586-022-05172-4)
 3. [A Refined Laser Method and Faster Matrix Multiplication](https://arxiv.org/abs/2010.05846)
 4. [Fast Matrix Multiplication: Limitations of the Laser Method](https://arxiv.org/abs/1411.5414)
+
+---
+
+[← Previous](Session02.md) | [Next →](./Session04.md)

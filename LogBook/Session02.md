@@ -17,3 +17,7 @@ Moving forward, I plan to immerse myself in the existing literature on matrix mu
 1. https://leetcode.com/problems/parallel-courses-ii/description/
 2. https://en.wikipedia.org/wiki/Natural_language_processing
 3. https://en.wikipedia.org/wiki/Matrix_multiplication#:~:text=Matrix%20multiplication%20was%20first%20described,that%20are%20represented%20by%20matrices
+
+---
+
+[← Previous](Session01.md) | [Next →](./Session03.md)

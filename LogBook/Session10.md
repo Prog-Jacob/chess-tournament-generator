@@ -42,3 +42,7 @@ In Session 10, the focus shifted to the technical implementation of the previous
     - Initiate the User Interface development phase.
 
 As the project enters a critical phase, the implementation decisions made during Session 10 set the stage for the subsequent sessions. The genetic algorithm will play a pivotal role in optimizing tournament outcomes, bringing the project one step closer to its completion.
+
+---
+
+[← Previous](Session09.md) | [Next →](./Session11.md)

@@ -6,7 +6,7 @@ As we conclude this seminar, it's time to reflect on the journey and accomplishm
 
 This seminar has been an immersive experience, blending statistical modeling, optimization algorithms, dynamic programming, and UI development. The initial goal was to create a tool that leverages advanced probability theories and genetic algorithms to generate optimized chess tournament formats. The journey involved diving into various aspects, from skewed normal distribution modeling to tournament simulation. The collaborative discussions with colleagues and technical challenges have contributed significantly to the depth and robustness of the project.
 
-Completing Necessary Paperwork and Documentation:\*
+Completing Necessary Paperwork and Documentation:
 
 With the project reaching its conclusion, it's time to ensure that all paperwork and documentation are in order. This includes documenting the entire codebase, providing clear instructions for usage, and preparing any accompanying documentation or reports.
 
@@ -23,3 +23,7 @@ The documentation includes:
 5. **Challenges and Solutions:** Document challenges faced during the development process and the corresponding solutions. This can serve as a resource for future developers working on similar projects.
 
 This was done through the GitHub README.md, as well as, this logbook. Next steps include delivering a research paper on the work done to address some weaknesses such as, lack of analysis and results' discussion, and recommendations on potential points of development.
+
+---
+
+[← Previous](Session13.md)

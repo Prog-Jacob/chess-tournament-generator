@@ -14,7 +14,11 @@ A skewed normal distribution is a type of continuous probability distribution th
 
 ## Skewness Parameter ($\alpha$)
 
-The skewness parameter ($\alpha$) determines the direction and degree of skewness in the distribution. Positive values result in right-skewed distributions, while negative values lead to left-skewed distributions. Higher absolute values of $\alpha$ indicate more pronounced skewness. The skewness function, designed to prioritize recent matches would be: $$\alpha = \sum_{i = 1}^{n} \frac{ratings \Delta_i \times{i}}{n}$$Given the significant impact of skewness on tournament results, further exploration of this aspect is crucial.
+The skewness parameter ($\alpha$) determines the direction and degree of skewness in the distribution. Positive values result in right-skewed distributions, while negative values lead to left-skewed distributions. Higher absolute values of $\alpha$ indicate more pronounced skewness. The skewness function, designed to prioritize recent matches would be:
+
+$$\alpha = \sum_{i = 1}^{n} \frac{ratings \Delta_i \times{i}}{n}$$
+
+Given the significant impact of skewness on tournament results, further exploration of this aspect is crucial.
 
 ## Probability Density Function (PDF)
 
@@ -67,3 +71,7 @@ Given the challenge of symbolic integration, the trapezoidal method is employed.
 
 1. [Skew normal distribution](https://en.wikipedia.org/wiki/Skew_normal_distribution)
 2. [Owen's T function](https://en.wikipedia.org/wiki/Owen%27s_T_function)
+
+---
+
+[← Previous](Session07.md) | [Next →](./Session09.md)

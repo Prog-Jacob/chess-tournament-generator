@@ -21,3 +21,7 @@ Given a set of players recent ratings and number of rounds needed for you tourna
 
 1. [Chess tournament](https://en.wikipedia.org/wiki/Chess_tournament#Formats)
 2. [Skew normal distribution](https://en.wikipedia.org/wiki/Skew_normal_distribution)
+
+---
+
+[← Previous](Session05.md) | [Next →](./Session07.md)

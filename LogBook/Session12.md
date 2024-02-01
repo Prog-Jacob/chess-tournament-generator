@@ -14,3 +14,7 @@ Another task I accomplished in this session was generating random samples for th
 #### Next Steps:
 
 While the project is coming at end, it's time to implement a graphical user interface for the ease of use and testing. I intend to create a home page in which user can choose to input their data, use random data, or use predefined datasets. There should be also, a page in which user customize their tournament and preview the players representation. Finally, a results page in which user can play around with generations, check out suggested tournament, and standings after executing this tournament.
+
+---
+
+[← Previous](Session11.md) | [Next →](./Session13.md)

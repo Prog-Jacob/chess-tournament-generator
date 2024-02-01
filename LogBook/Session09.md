@@ -41,3 +41,7 @@ Moving forward, the focus will be on catching up on the optimization and simulat
 
 1. [Chess tournament](https://en.wikipedia.org/wiki/Chess_tournament#Round-robin)
 2. [FIDE Handbook](https://handbook.fide.com/)
+
+---
+
+[← Previous](Session08.md) | [Next →](./Session10.md)

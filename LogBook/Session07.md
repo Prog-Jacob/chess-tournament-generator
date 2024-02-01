@@ -27,3 +27,7 @@ While acknowledging a limited depth of knowledge in optimization algorithms, a c
 > **Implementation of Genetic Algorithm**
 >
 > -   The decision to employ a genetic algorithm as the optimization tool necessitates its comprehensive implementation. The genetic algorithm will be fine-tuned to align with the specific requirements of the AI Chess Tournament Generator. Key considerations include the genetic operators, selection mechanisms, and termination criteria. Extensive testing and validation will be conducted to ensure the algorithm's efficacy in generating optimal tournament formats.
+
+---
+
+[← Previous](Session06.md) | [Next →](./Session08.md)
