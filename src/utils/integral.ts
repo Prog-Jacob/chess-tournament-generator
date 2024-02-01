@@ -2,7 +2,7 @@ export function trapezoidalIntegration(
     pdf: (x: number) => number,
     a: number,
     b: number,
-    n: number = 25
+    n: number = 50
 ): number {
     const H = (b - a) / n;
     let area = (pdf(a) + pdf(b)) / 2;
