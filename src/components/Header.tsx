@@ -10,8 +10,8 @@ function Header() {
             <Toolbar>
                 <Typography
                     sx={{ margin: "auto" }}
-                    variant="h6"
                     color="inherit"
+                    variant="h6"
                 >
                     Chess Tournament Generator
                 </Typography>

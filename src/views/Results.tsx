@@ -1,22 +1,25 @@
+import GeneticAlgorithm from "../services/genetic_algorithm/genetic_algorithm";
+import { PlayerParameters, PlayerProfile } from "../types/player";
+import { isRobin, isSwiss } from "../utils/tournament_types_map";
+import { Format as FormatType } from "../types/formats";
+import ProgressPlot from "../components/ProgressPlot";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { PlayerParameters, PlayerProfile } from "../types/player";
-import Player from "../services/player";
-import GeneticAlgorithm from "../services/genetic_algorithm/genetic_algorithm";
+import RatingPlot from "../components/RatingPlot";
 import { shuffleArray } from "../utils/array";
+import Format from "../components/Format";
+import Player from "../services/player";
+import { FaPlay } from "react-icons/fa";
+import Title from "../components/Title";
 import {
     Box,
-    Button,
     Grid,
-    IconButton,
     Paper,
+    Button,
     TextField,
+    IconButton,
     Typography,
 } from "@mui/material";
-import { FaPlay } from "react-icons/fa";
-import RatingPlot from "../components/RatingPlot";
-import { Format as FormatType } from "../types/formats";
-import { isRobin, isSwiss } from "../utils/tournament_types_map";
 
 export interface FormatProps {
     type: string;
@@ -24,37 +27,6 @@ export interface FormatProps {
     matches: number;
     gamesPerMatch: number;
     topCut: number;
-}
-
-function Format({ format }: { format: FormatProps }) {
-    const { type, players, matches, gamesPerMatch, topCut } = format;
-
-    return (
-        <Box
-            sx={{
-                p: 2,
-                border: 2,
-                borderRadius: 2,
-                boxShadow: 1,
-            }}
-        >
-            <Typography variant="h4" fontWeight="medium">
-                {type}
-            </Typography>
-            <Typography variant="h6" color="text.secondary">
-                Players: {players}
-            </Typography>
-            <Typography variant="h6" color="text.secondary">
-                Matches: {matches}
-            </Typography>
-            <Typography variant="h6" color="text.secondary">
-                Qualifiers: {topCut}
-            </Typography>
-            <Typography variant="h6" color="text.secondary">
-                Games Per Match: {gamesPerMatch}
-            </Typography>
-        </Box>
-    );
 }
 
 const mapToFormat = (format: FormatType, players: number): FormatProps => {
@@ -89,6 +61,7 @@ const Results = () => {
     const [searchParams] = useSearchParams();
     const [input, setInput] = useState<string>("");
     const [showCount, setShowCount] = useState(10);
+    const [progress, setProgress] = useState<number[]>([]);
     const [standings, setStandings] = useState<Player[]>();
     const [generation, setGeneration] = useState<number>(0);
 
@@ -128,14 +101,17 @@ const Results = () => {
 
     const handleAdvancingGeneration = () => {
         const num = parseInt(input);
-        if (isNaN(num) || num < 1 || num > 20) {
-            alert("Please enter a valid number between 1 and 20.");
+        if (isNaN(num) || num < 1 || num > 100) {
+            alert("Please enter a valid number between 1 and 100.");
         } else {
             geneticAlgorithm?.advanceGenerationBy(num);
             setGeneration((generation) => generation + num);
             setStandings(() => [
                 ...(geneticAlgorithm?.getTournamentResults() || []),
             ]);
+            setProgress(
+                (progress) => geneticAlgorithm?.getProgress() || progress
+            );
         }
     };
 
@@ -232,22 +208,21 @@ const Results = () => {
                             </Paper>
                         </Grid>
                     </Grid>
-                    <Typography
-                        variant="h5"
-                        sx={{
-                            margin: "auto",
-                            textAlign: "center",
-                            width: "fit-content",
-                            padding: "10px 20px",
-                            backgroundColor: "var(--secondary)",
-                            color: "var(--primary)",
-                            borderRadius: "50px",
-                            mt: 2,
-                            mb: 2,
-                        }}
-                    >
-                        Best Tournament
-                    </Typography>
+                    {progress.length ? (
+                        <ProgressPlot progress={[...progress]} />
+                    ) : (
+                        <Typography
+                            variant="body1"
+                            sx={{
+                                margin: "auto",
+                                textAlign: "center",
+                                mt: 3,
+                            }}
+                        >
+                            Advance generations in order to get any data!
+                        </Typography>
+                    )}
+                    <Title title="Suggested Tournament" />
                     <Grid
                         container
                         spacing={4}
@@ -294,7 +269,7 @@ const Results = () => {
                                         mt: 3,
                                     }}
                                 >
-                                    No formats found!
+                                    No formats found, try advancing generations!
                                 </Typography>
                             );
                         })()}
@@ -309,21 +284,7 @@ const Results = () => {
                             alignItems: "center",
                         }}
                     >
-                        <Typography
-                            variant="h5"
-                            sx={{
-                                margin: "auto",
-                                textAlign: "center",
-                                width: "fit-content",
-                                padding: "10px 20px",
-                                backgroundColor: "var(--secondary)",
-                                color: "var(--primary)",
-                                borderRadius: "50px",
-                                mt: 2,
-                            }}
-                        >
-                            Standings
-                        </Typography>
+                        <Title title="Standings" />
 
                         {standings
                             ?.slice(0, showCount)

@@ -1,9 +1,9 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { Button, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { Button, Box } from "@mui/material";
 import Player from "../services/player";
+import { Link } from "react-router-dom";
 import data from "../data/players";
+import React from "react";
 
 const Navigation = () => {
     const navigate = useNavigate();
@@ -15,8 +15,8 @@ const Navigation = () => {
         for (let i = 0; i < N; i++) {
             const player = new Player();
             players.push({
-                ratings: player.getRatings(),
                 name: player.getName(),
+                ratings: player.getRatings(),
             });
         }
 
@@ -34,13 +34,13 @@ const Navigation = () => {
             sx={{
                 mt: 4,
                 display: "flex",
-                flexDirection: "column",
                 alignItems: "center",
+                flexDirection: "column",
             }}
         >
             <Button
-                variant="contained"
                 color="primary"
+                variant="contained"
                 onClick={generateRandomData}
                 sx={{
                     mb: 2,
@@ -53,8 +53,8 @@ const Navigation = () => {
                 Run Example on Random Data
             </Button>
             <Button
-                variant="contained"
                 color="primary"
+                variant="contained"
                 onClick={usePredefinedData}
                 sx={{
                     mb: 2,
@@ -67,10 +67,10 @@ const Navigation = () => {
                 Run Example on Real Data
             </Button>
             <Button
-                variant="contained"
                 color="primary"
                 component={Link}
                 to="/input-data"
+                variant="contained"
                 sx={{
                     mb: 2,
                     background: "var(--secondary)",

@@ -1,9 +1,9 @@
-import { isRobin, isSwiss } from "../utils/tournament_types_map";
-import RoundRobinManager from "./tournament/managers/round_robin";
-import TournamentManager from "./tournament/managers/tournament_manager";
-import { Tournament as TournamentType } from "./genetic_algorithm/first_generation";
-import SwissManager from "./tournament/managers/swiss";
 import SingleEliminationManager from "./tournament/managers/single_elemination_round";
+import TournamentManager from "./tournament/managers/tournament_manager";
+import { TournamentType } from "./genetic_algorithm/first_generation";
+import RoundRobinManager from "./tournament/managers/round_robin";
+import { isRobin, isSwiss } from "../utils/tournament_types_map";
+import SwissManager from "./tournament/managers/swiss";
 import { PlayerProfile } from "../types/player";
 
 class Tournament {
