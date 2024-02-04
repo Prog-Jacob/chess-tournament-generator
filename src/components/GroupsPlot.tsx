@@ -31,7 +31,7 @@ const GroupPlot: React.FC<PerformanceDistributionPlotProps> = ({ players }) => {
                 };
             })
         );
-    }, []);
+    }, [players]);
 
     return (
         <div>

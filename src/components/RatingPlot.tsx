@@ -76,7 +76,7 @@ const PerformanceDistributionPlot: React.FC<
                 hovertemplate: "%{y:.0f} ELO" + "<extra></extra>",
             },
         ]);
-    }, []);
+    }, [player]);
 
     return (
         <div>

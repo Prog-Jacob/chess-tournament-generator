@@ -1,5 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import { FormatProps } from "../views/Results";
+import React from "react";
 
 function Format({ format }: { format: FormatProps }) {
     const { type, players, matches, gamesPerMatch, topCut } = format;

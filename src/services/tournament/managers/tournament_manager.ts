@@ -2,8 +2,8 @@ import { PlayerProfile } from "../../../types/player";
 import { Format } from "../../../types/formats";
 
 abstract class TournamentManager {
-    protected pairings: Map<number, number>;
     protected profiles: Map<number, PlayerProfile>;
+    protected pairings: Map<number, number>;
     protected winners: PlayerProfile[];
     protected losers: PlayerProfile[];
     protected format: Format;
@@ -22,8 +22,8 @@ abstract class TournamentManager {
 
     public abstract generatePairings(): void;
     public abstract matchUp(player1: number, player2: number): number;
-    public abstract playerLost(player: PlayerProfile): void;
-    public abstract playerWon(player: PlayerProfile): void;
+    public abstract playerLost(player: PlayerProfile): PlayerProfile;
+    public abstract playerWon(player: PlayerProfile): PlayerProfile;
     public abstract getWinners(): PlayerProfile[];
     public abstract getLosers(): PlayerProfile[];
     public abstract updateStandings(): void;
@@ -43,8 +43,14 @@ abstract class TournamentManager {
         for (const [player1, player2] of pairings) {
             const winner = this.matchUp(player1, player2);
             const loser = winner == player1 ? player2 : player1;
-            this.playerWon(this.profiles.get(winner)!);
-            this.playerLost(this.profiles.get(loser)!);
+            this.profiles.set(
+                winner,
+                this.playerWon(this.profiles.get(winner)!)
+            );
+            this.profiles.set(
+                loser,
+                this.playerLost(this.profiles.get(loser)!)
+            );
         }
 
         this.round++;

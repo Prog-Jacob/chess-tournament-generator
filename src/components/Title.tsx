@@ -1,4 +1,5 @@
 import { Typography } from "@mui/material";
+import React from "react";
 
 function Title({ title }: { title: string }) {
     return (
@@ -12,7 +13,6 @@ function Title({ title }: { title: string }) {
                 backgroundColor: "var(--secondary)",
                 color: "var(--primary)",
                 borderRadius: "50px",
-                mt: 2,
                 mb: 2,
             }}
         >

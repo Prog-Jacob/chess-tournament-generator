@@ -25,7 +25,8 @@ const ProgressPlot = ({ progress }: { progress: number[] }) => {
                 mode: "lines",
                 x: x,
                 y: [...progress],
-                hovertemplate: "Generation %{x} MSE: %{y}<extra></extra>",
+                hovertemplate:
+                    "Error of generation %{x} is %{y:.2f}<extra></extra>",
             },
             {
                 type: "scatter",
@@ -33,7 +34,7 @@ const ProgressPlot = ({ progress }: { progress: number[] }) => {
                 x: x,
                 y: movingAverage(),
                 hovertemplate:
-                    "Average %{x} MSE Moving Average: %{y}<extra></extra>",
+                    "Average error around generation %{x} is %{y:.2f}<extra></extra>",
             },
         ]);
     }, [progress]);
@@ -43,7 +44,12 @@ const ProgressPlot = ({ progress }: { progress: number[] }) => {
             <Plot
                 data={plotData}
                 config={{ displaylogo: false }}
-                layout={{ title: "Progress", showlegend: false }}
+                layout={{
+                    title: "Progress",
+                    showlegend: false,
+                    yaxis: { title: "Error" },
+                    xaxis: { title: "Generation" },
+                }}
             />
         </div>
     );
