@@ -5,6 +5,7 @@ import RoundRobinManager from "./tournament/managers/round_robin";
 import { isRobin, isSwiss } from "../utils/tournament_types_map";
 import SwissManager from "./tournament/managers/swiss";
 import { PlayerProfile } from "../types/player";
+import { shuffleArray } from "../utils/array";
 
 class Tournament {
     private tournament: TournamentType;
@@ -33,11 +34,13 @@ class Tournament {
 
             manager.executeTournament();
             this.losers.push(...manager.getLosers());
-            this.winners = manager.getWinners().map((profile) => ({
-                ...profile,
-                gamesWon: 0,
-                didGoThorough: false,
-            }));
+            this.winners = shuffleArray(
+                manager.getWinners().map((profile) => ({
+                    ...profile,
+                    gamesWon: 0,
+                    didGoThorough: false,
+                }))
+            );
             if (this.winners.length + this.losers.length !== this.n) {
                 throw new Error("Invalid tournament");
             }

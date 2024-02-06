@@ -21,16 +21,19 @@ After implementing the UI, I experimented with the app through the browser and c
 **The following are some screenshots from the UI:**
 
 > Home Page:
-> ![The home page](./static/home.jpeg)
+> ![The home page](../static/home.jpeg)
 
 > Input Players Page:
-> ![Input players page](./static/input_data.jpeg)
+> ![Input players page](../static/input_data.jpeg)
 
 > Tournament Page:
-> ![Tournament page](./static/tournament.jpeg)
+> ![Tournament page](../static/tournament.jpeg)
 
-> Results Page:
-> ![Results page](./static/results.jpeg)
+> Results - Fair Mode:
+> ![Results page](../static/results_fair.jpeg)
+
+> Results - Exciting Mode:
+> ![Results page](../static/results_exciting.jpeg)
 
 ---
 
