@@ -8,7 +8,7 @@ abstract class RoundRobinGenerator extends TournamentGenerator {
     ): boolean {
         const matches =
             numberOfPlayers % 2 == 0 ? numberOfPlayers - 1 : numberOfPlayers;
-        return matches > 0 && matches <= maxRounds;
+        return numberOfPlayers > 1 && matches > 0 && matches <= maxRounds;
     }
 
     public static generateRandomFormat(
@@ -20,13 +20,17 @@ abstract class RoundRobinGenerator extends TournamentGenerator {
             numberOfPlayers % 2 == 0 ? numberOfPlayers - 1 : numberOfPlayers;
 
         if (maxRounds < matches * 2) gamesPerMatch = 1;
-        const topCut = Math.floor(Math.random() * numberOfPlayers) + 1;
+        const topCut = Math.floor(Math.random() * (numberOfPlayers - 1)) + 1;
 
         return { gamesPerMatch, matches, topCut };
     }
 
     public static getNumberOfRounds(format: RoundRobinFormat): number {
         return format.matches * format.gamesPerMatch;
+    }
+
+    public static getNumberOfPlayers(format: RoundRobinFormat): number {
+        return format.topCut;
     }
 }
 

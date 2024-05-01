@@ -2,6 +2,7 @@ import { PlayerProfile } from "../../../types/player";
 import { shuffleArray } from "../../../utils/array";
 import { Format } from "../../../types/formats";
 import Player from "../../player";
+import { trapezoidalIntegration } from "../../../utils/integral";
 
 type PDFFunction = (x: number) => number;
 
@@ -32,7 +33,6 @@ abstract class TournamentManager {
         this.winners = [];
         this.losers = [];
         this.round = 0;
-        console.log(format);
     }
 
     public abstract generatePairings(): void;
@@ -72,9 +72,6 @@ abstract class TournamentManager {
             this.executeRound();
             this.updateStandings();
         }
-
-        console.log("Winners are: ", this.getWinners());
-        console.log("Losers are: ", this.getLosers());
     }
 
     protected winProbability(player1: number, player2: number): number {
@@ -83,9 +80,9 @@ abstract class TournamentManager {
             player1,
             player2
         );
-        return this.trapezoidalIntegration(
+        return trapezoidalIntegration(
             (x: number) =>
-                this.trapezoidalIntegration(
+                trapezoidalIntegration(
                     (y: number) => player1PDF(x) * player2PDF(y),
                     a,
                     x,
@@ -103,9 +100,9 @@ abstract class TournamentManager {
             player2
         );
 
-        return this.trapezoidalIntegration(
+        return trapezoidalIntegration(
             (x: number) =>
-                this.trapezoidalIntegration(
+                trapezoidalIntegration(
                     (y: number) => player1PDF(x) * player2PDF(y),
                     x,
                     b,
@@ -130,31 +127,15 @@ abstract class TournamentManager {
         const player1PDF = (x: number) => player1Distribution.getProbability(x);
         const player2PDF = (x: number) => player2Distribution.getProbability(x);
         const a = Math.min(
-            player1Distribution.cdf(0.001),
-            player2Distribution.cdf(0.001)
+            player1Distribution.invCDF(0.001),
+            player2Distribution.invCDF(0.001)
         );
         const b = Math.max(
-            player1Distribution.cdf(0.999),
-            player2Distribution.cdf(0.999)
+            player1Distribution.invCDF(0.999),
+            player2Distribution.invCDF(0.999)
         );
 
         return { player1PDF, player2PDF, a, b };
-    }
-
-    private trapezoidalIntegration(
-        pdf: PDFFunction,
-        a: number,
-        b: number,
-        n: number = 25
-    ): number {
-        const H = (b - a) / n;
-        let area = (pdf(a) + pdf(b)) / 2;
-
-        for (let x = 1; x < n; x++) {
-            area += pdf(a + x * H);
-        }
-
-        return H * area;
     }
 }
 
