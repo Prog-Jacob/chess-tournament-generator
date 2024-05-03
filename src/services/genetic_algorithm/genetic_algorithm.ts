@@ -1,4 +1,4 @@
-import { RoundRobinFormat, SwissFormat } from "../../types/formats";
+import { Format, RoundRobinFormat, SwissFormat } from "../../types/formats";
 import { isRobin, isSwiss } from "../../utils/tournament_types_map";
 import RoundRobinGenerator from "../tournament/generators/round_robin";
 import SingleEliminationGenerator from "../tournament/generators/single_elimination_round";
@@ -16,12 +16,11 @@ export interface Sample {
 }
 
 class GeneticAlgorithm {
+    private generation: Set<Sample> = new Set();
+    private playersRanked: Map<number, number>;
     private players: PlayerProfile[];
-    private playersRanked: Map<PlayerProfile, number>;
-    private generationSize: number;
-    private mode: string;
     private numberOfRounds: number;
-    private generation: Set<Sample>;
+    private generationSize: number;
     private fittest: Sample[] = [];
 
     constructor(
@@ -37,19 +36,19 @@ class GeneticAlgorithm {
                 : a.player.invCDF(0.5) - b.player.invCDF(0.5)
         );
 
-        this.mode = mode;
         this.generationSize = generationSize;
         this.numberOfRounds = numberOfRounds;
         this.playersRanked = new Map(
-            this.players.map((player, index) => [player, index])
+            this.players.map((player, index) => [player.id, index])
         );
         this.generation = new Set();
     }
 
     private selectFittest() {
-        const fittest: [Sample, number][] = [];
+        const fittest: Map<Sample, number> = new Map();
 
         for (const { formats, rounds } of this.generation) {
+            if (formats.length == 0) continue;
             const tournament = new Tournament(
                 this.players.map((p) => ({ ...p })),
                 formats
@@ -57,24 +56,25 @@ class GeneticAlgorithm {
             const result = tournament.getTournamentResult();
             const fitness = result.reduce(
                 (acc, player, index) =>
-                    acc + (index - this.playersRanked.get(player)!) ** 2,
+                    acc + (index - this.playersRanked.get(player.id)!) ** 2,
                 0
             );
-            fittest.push([{ formats, rounds }, fitness]);
+            fittest.set({ formats, rounds }, fitness);
         }
 
-        this.fittest = fittest
+        this.fittest = [...fittest.entries()]
             .sort(
                 (a, b) =>
                     a[1] - b[1] || a[0].formats.length - b[0].formats.length
             )
             .slice(0, this.generationSize)
-            .map((x) => x[0]);
+            .map((x: [Sample, number]) => x[0]);
+        console.log(this.fittest[0]);
     }
 
     private crossover() {
         const generation = [...this.fittest];
-        const newGeneration: Map<Sample, number> = new Map();
+        const newGeneration: Map<Format[], number> = new Map();
 
         for (let i = 0; i < generation.length; i++) {
             const { formats, rounds } = generation[i];
@@ -91,24 +91,22 @@ class GeneticAlgorithm {
                             ...formats.slice(0, idx),
                             ...formats2.slice(idx2),
                         ];
-                        const newRounds = this.preprocessFormats(
-                            newFormat,
-                            this.players.length
-                        );
                         const minIdx = Math.min(
                             i + j,
-                            newGeneration.get(newRounds) || Infinity
+                            newGeneration.get(newFormat) || Infinity
                         );
-                        newGeneration.set(newRounds, minIdx);
+                        newGeneration.set(newFormat, minIdx);
                     }
                 }
             }
 
             this.generation = new Set(
-                Array.from(newGeneration)
-                    .sort((a, b) => b[1] - a[1])
-                    .slice(-this.generationSize)
-                    .map((x) => x[0])
+                [...newGeneration.entries()]
+                    .sort((a, b) => a[1] - b[1])
+                    .slice(0, this.generationSize)
+                    .map((x) =>
+                        this.preprocessFormats(x[0], this.players.length)
+                    )
             );
         }
     }
