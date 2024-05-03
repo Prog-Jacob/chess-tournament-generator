@@ -15,7 +15,6 @@ abstract class SwissGenerator extends TournamentGenerator {
     ): SwissFormat {
         const topCut = Math.floor(Math.random() * (numberOfPlayers - 1)) + 1;
         const matches = Math.floor(Math.random() * maxRounds) + 1;
-
         return { matches, topCut };
     }
 

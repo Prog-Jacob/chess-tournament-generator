@@ -1,8 +1,9 @@
 import { Format } from "../../types/formats";
 import RoundRobinGenerator from "../tournament/generators/round_robin";
-import SingleEliminationGenerator from "../tournament/generators/single_elemination_round";
+import SingleEliminationGenerator from "../tournament/generators/single_elimination_round";
 import SwissGenerator from "../tournament/generators/swiss";
 import { shuffleArray } from "../../utils/array";
+import { TournamentGenerator } from "../../types/tournament";
 
 export type Tournament = Format[];
 
@@ -11,40 +12,36 @@ export function generateSamples(
     numberOfPlayers: number,
     numberOfRounds: number
 ): Tournament[] {
-    const memo: Map<[number, number], Tournament[]> = new Map();
-    const generators = [
-        RoundRobinGenerator,
-        SingleEliminationGenerator,
-        SwissGenerator,
-        RoundRobinGenerator,
-        SingleEliminationGenerator,
-        SwissGenerator,
-        RoundRobinGenerator,
-        SingleEliminationGenerator,
-        SwissGenerator,
-    ];
-    let count = 0;
+    const totalTournaments: Set<Tournament> = new Set();
+    const memo: Set<Tournament>[][] = Array.from(
+        { length: numberOfRounds + 1 },
+        () => []
+    );
 
     function dp(
         round: number,
         players: number,
         tournament: Tournament
-    ): Tournament[] {
-        if (round > numberOfRounds) return [];
+    ): Set<Tournament> {
+        if (round > numberOfRounds) return new Set();
         if (round === numberOfRounds) {
-            count += 1;
-            return [tournament];
-        } else if (memo.has([round, players])) {
-            const x = memo.get([round, players])!;
-            count += x.length;
-            return x;
+            totalTournaments.add(tournament);
+            return new Set([tournament]);
         }
 
-        const tournaments: Tournament[] = [];
+        const rounds = numberOfRounds - round;
+        const tournaments: Set<Tournament> = new Set();
 
-        for (const generator of shuffleArray(generators)) {
-            const rounds = numberOfRounds - round;
+        if (memo[rounds][players] !== undefined) {
+            for (const nextTournament of memo[rounds][players].values()) {
+                const finalTournament = [...tournament, ...nextTournament];
+                totalTournaments.add(finalTournament);
+                tournaments.add(finalTournament);
+            }
+            return tournaments;
+        }
 
+        for (const generator of getGenerators()) {
             if (generator.canGenerateFormat(players, rounds)) {
                 const format = generator.generateRandomFormat(players, rounds);
                 const nextTournaments = dp(
@@ -53,26 +50,29 @@ export function generateSamples(
                     [...tournament, format]
                 );
 
-                tournaments.push(...nextTournaments);
-                if (count > generationSize) break;
+                if (totalTournaments.size > generationSize) break;
+                [...nextTournaments].forEach((finalTournament) =>
+                    tournaments.add(finalTournament)
+                );
             }
         }
 
-        memo.set([round, players], tournaments);
+        memo[round][players] = tournaments;
         return tournaments;
     }
 
-    let previousCount = -1;
-    const generation: Set<Tournament> = new Set();
+    dp(0, numberOfPlayers, []);
+    return shuffleArray([...totalTournaments]);
+}
 
-    while (count < generationSize && count !== previousCount) {
-        memo.clear();
-        previousCount = count;
-        dp(0, numberOfPlayers, []).forEach((tournament) =>
-            generation.add(tournament)
-        );
-        count = generation.size;
-    }
-
-    return shuffleArray([...generation]);
+function getGenerators(): TournamentGenerator[] {
+    const generators = [
+        SwissGenerator,
+        SwissGenerator,
+        RoundRobinGenerator,
+        RoundRobinGenerator,
+        SingleEliminationGenerator,
+        SingleEliminationGenerator,
+    ];
+    return shuffleArray(generators);
 }

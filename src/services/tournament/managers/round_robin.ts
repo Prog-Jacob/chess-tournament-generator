@@ -1,16 +1,15 @@
 import { RoundRobinFormat } from "../../../types/formats";
 import { PlayerProfile } from "../../../types/player";
-import Player from "../../player";
 import TournamentManager from "./tournament_manager";
 
 class RoundRobinManager extends TournamentManager {
     private standings: PlayerProfile[];
     private gameHistory: Set<[number, number]>;
 
-    constructor(players: Player[], format: RoundRobinFormat) {
+    constructor(players: PlayerProfile[], format: RoundRobinFormat) {
         super(players, format);
         this.gameHistory = new Set();
-        this.standings = [...this.profiles];
+        this.standings = [...this.profiles.values()];
     }
 
     public generatePairings(): void {
@@ -56,7 +55,7 @@ class RoundRobinManager extends TournamentManager {
     }
 
     public matchUp(player1: number, player2: number): number {
-        const winProbability = this.winProbability(player1, player2);
+        const winProbability = universalManager.matchUp(player1, player2);
         let player1Score = 0;
         let player2Score = 0;
 
@@ -83,20 +82,22 @@ class RoundRobinManager extends TournamentManager {
         return match1 ? player1 : player2;
     }
 
-    public getLosers(): Player[] {
+    public getLosers(): PlayerProfile[] {
         this.generateStandings();
-        return this.losers.map((player) => player.player);
+        return [...this.losers];
     }
 
-    public getWinners(): Player[] {
+    public getWinners(): PlayerProfile[] {
         this.generateStandings();
-        return this.winners.map((player) => player.player);
+        return [...this.winners];
     }
 
     private generateStandings() {
         if (this.roundCheck() || this.winners.length || this.losers.length)
             return;
-        const standings = this.profiles.map((player) => ({ ...player }));
+        const standings = [...this.profiles.values()].map((player) => ({
+            ...player,
+        }));
 
         standings.sort((a, b) => a.gamesWon - b.gamesWon);
 
