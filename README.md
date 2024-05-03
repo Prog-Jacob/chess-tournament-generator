@@ -1,46 +1,62 @@
-# Getting Started with Create React App
+# AI Chess Tournament Generator
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Description
 
-## Available Scripts
+The AI Chess Tournament Generator is a React.js application powered by statistical modeling and optimization algorithms, specifically leveraging skewed normal distribution with genetic algorithms. The primary goal is to facilitate the creation of chess tournaments by calculating the probabilistically best tournament format. The application takes into account a number of players' recent ratings and the desired number of rounds, aiming to achieve either maximum fairness or excitement.
 
-In the project directory, you can run:
+## Installation
 
-### `npm start`
+The AI Chess Tournament Generator is hosted on a public GitHub repository. Make sure to have `Node` and `Git` installed beforehand. To set it up locally, follow these steps:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Prog-Jacob/chess-tournament-generator.git
+   ```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+2. Navigate to the project directory:
+   ```bash
+   cd chess-tournament-generator
+   ```
 
-### `npm test`
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+4. Run the application:
+   ```bash
+   npm start
+   ```
 
-### `npm run build`
+5. Access the application in your browser at `http://localhost:3000`.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Features
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- Supports three common chess formats:
+  - Swiss system with 1 game per match.
+  - Round Robin with 1 or 2 games per match.
+  - Single Elimination Round with 2 games per match.
+- Two modes:
+  - Fair: Maximizes for expected results.
+  - Exciting: Maximizes against expected results.
+- Input options:
+  - Manual input through the UI.
+  - JSON file input `{ ratings?: number[], name?: string }[]`.
+- Experimentation modes:
+  - Generate random players on the fly.
+  - Use a predefined test set of the top 20 players worldwide in classical chess as of January 2024.
+- Advance through generations:
+  - Advance through generations and check out how does the tournament formats and standings change over generations.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Usage
 
-### `npm run eject`
+To use the AI Chess Tournament Generator:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+1. Manually input players' information or upload a JSON file.
+1. Or experiment with random player generation or use the provided test set.
+1. Input the desired settings through the user interface.
+4. Receive the optimized tournament format for fairness or excitement.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Contact Information
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+For questions or issues, feel free to reach out to [Ahmed Abdelaziz] at [Ahmed.Abdelaziz.GM@gmail.com].

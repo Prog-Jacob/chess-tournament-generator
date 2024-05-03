@@ -22,7 +22,7 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-    background: transparent;
+    background: inherit;
 }
 
 ::-webkit-scrollbar-thumb {

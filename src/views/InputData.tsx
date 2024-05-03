@@ -112,12 +112,12 @@ const InputData: React.FC = () => {
     return (
         <Box
             style={{
-                backgroundColor: 'var(--background)',
-                color: 'var(--secondary)',
-                padding: '20px',
-                borderRadius: '10px',
-                maxWidth: '800px',
-                margin: 'auto',
+                backgroundColor: "var(--background)",
+                color: "var(--secondary)",
+                padding: "20px",
+                borderRadius: "10px",
+                maxWidth: "800px",
+                margin: "auto",
             }}
         >
             <Box mb={2}>
@@ -144,7 +144,7 @@ const InputData: React.FC = () => {
                     color="primary"
                     onClick={handleAddPlayer}
                     fullWidth
-                    style={{ backgroundColor: 'var(--secondary)' }}
+                    style={{ backgroundColor: "var(--secondary)" }}
                 >
                     Add Player
                 </Button>
@@ -157,10 +157,16 @@ const InputData: React.FC = () => {
                     variant="contained"
                     component="label"
                     fullWidth
-                    style={{ backgroundColor: 'var(--secondary)' }}
+                    style={{ backgroundColor: "var(--secondary)" }}
                 >
                     Upload Files
-                    <input type="file" hidden multiple accept=".json" onChange={handleUploadFile} />
+                    <input
+                        type="file"
+                        hidden
+                        multiple
+                        accept=".json"
+                        onChange={handleUploadFile}
+                    />
                 </Button>
             </Box>
             {players.length > 0 && (
@@ -169,20 +175,45 @@ const InputData: React.FC = () => {
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell style={{ fontWeight: 'bold', minWidth: '100px' }}>Name</TableCell>
-                                    <TableCell style={{ fontWeight: 'bold', minWidth: '100px' }}>Ratings</TableCell>
-                                    <TableCell style={{ fontWeight: 'bold', minWidth: '100px' }}></TableCell>
+                                    <TableCell
+                                        style={{
+                                            fontWeight: "bold",
+                                            minWidth: "100px",
+                                        }}
+                                    >
+                                        Name
+                                    </TableCell>
+                                    <TableCell
+                                        style={{
+                                            fontWeight: "bold",
+                                            minWidth: "100px",
+                                        }}
+                                    >
+                                        Ratings
+                                    </TableCell>
+                                    <TableCell
+                                        style={{
+                                            fontWeight: "bold",
+                                            minWidth: "100px",
+                                        }}
+                                    ></TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {players.map((player, index) => (
                                     <TableRow key={index}>
                                         <TableCell>{player.name}</TableCell>
-                                        <TableCell>{player.ratings?.join(', ')}</TableCell>
+                                        <TableCell>
+                                            {player.ratings?.join(", ")}
+                                        </TableCell>
                                         <TableCell>
                                             <Button
-                                                style={{ color: 'var(--secondary)' }}
-                                                onClick={() => handleRemovePlayer(index)}
+                                                style={{
+                                                    color: "var(--secondary)",
+                                                }}
+                                                onClick={() =>
+                                                    handleRemovePlayer(index)
+                                                }
                                             >
                                                 Remove
                                             </Button>
@@ -201,8 +232,10 @@ const InputData: React.FC = () => {
                     onClick={handleContinue}
                     fullWidth
                     disabled={players.length === 0}
-                    sx={{ '&:disabled': { backgroundColor: 'initial !important' } }}
-                    style={{ backgroundColor: 'var(--secondary)' }}
+                    sx={{
+                        "&:disabled": { backgroundColor: "initial !important" },
+                    }}
+                    style={{ backgroundColor: "var(--secondary)" }}
                 >
                     Continue to Tournament
                 </Button>
@@ -213,7 +246,7 @@ const InputData: React.FC = () => {
                 autoHideDuration={3000}
                 onClose={handleSnackbarClose}
             />
-        </Box >
+        </Box>
     );
 };
 
