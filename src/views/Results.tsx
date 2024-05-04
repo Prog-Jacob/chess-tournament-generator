@@ -60,7 +60,7 @@ function Format({ format }: { format: FormatProps }) {
 const mapToFormat = (format: FormatType, players: number): FormatProps => {
     let props;
     if (isRobin(format)) {
-        props = { players, ...format, type: "Robin Round" };
+        props = { players, ...format, type: "Round Robin" };
     } else if (isSwiss(format)) {
         props = { players, ...format, gamesPerMatch: 1, type: "Swiss System" };
     } else {

@@ -13,6 +13,7 @@ import {
 import RatingPlot from "../components/RatingPlot";
 import Player from "../services/player";
 import { PlayerParameters } from "../types/player";
+import GroupPlot from "../components/GroupsPlot";
 
 const Tournament = () => {
     const navigate = useNavigate();
@@ -28,7 +29,7 @@ const Tournament = () => {
             (player: PlayerParameters) =>
                 new Player(player.ratings, player.name)
         );
-        setPlayers(newPlayers);
+        setPlayers(() => newPlayers);
     }, []);
 
     const handleExecuteTournament = () => {
@@ -123,7 +124,12 @@ const Tournament = () => {
                         borderRadius: "10px",
                     }}
                 >
-                    {players.slice(-showCount).map((player, index) => (
+                    {players.length ? (
+                        <GroupPlot players={players.slice(0, showCount)} />
+                    ) : (
+                        <></>
+                    )}
+                    {players.slice(0, showCount).map((player, index) => (
                         <RatingPlot key={index} player={player} />
                     ))}
                     <Button
