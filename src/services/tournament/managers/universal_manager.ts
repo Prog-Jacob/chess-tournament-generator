@@ -1,7 +1,7 @@
 import { PlayerProfile } from "../../../types/player";
 import { trapezoidalIntegration } from "../../../utils/integral";
 
-type PDFFunction = (x: number) => number;
+type NumToNumFunction = (x: number) => number;
 
 class UniversalManager {
     private matchUps: number[][];
@@ -22,14 +22,6 @@ class UniversalManager {
                 this.matchUps[p1][p2] = winProbability;
             }
         }
-
-        for (let i = 0; i < players.length; i++) {
-            console.log(this.profiles[i].name);
-            for (let j = 0; j < players.length; j++) {
-                console.log(this.profiles[j].name, this.matchUps[i][j]);
-            }
-            console.log("------------------");
-        }
     }
 
     public matchUp(player1: number, player2: number): number {
@@ -37,21 +29,15 @@ class UniversalManager {
     }
 
     protected winProbability(player1: number, player2: number): number {
-        const { player1PDF, player2PDF, a, b } = this.getProbabilityParameters(
+        const { CDF, PDF, a, b } = this.getProbabilityParameters(
             player1,
             player2
         );
         return trapezoidalIntegration(
-            (x: number) =>
-                trapezoidalIntegration(
-                    (y: number) => player1PDF(x) * player2PDF(y),
-                    a,
-                    x,
-                    50
-                ),
+            (x: number) => (1 - CDF(x)) * PDF(x),
             a,
             b,
-            75
+            100
         );
     }
 
@@ -59,26 +45,21 @@ class UniversalManager {
         player1: number,
         player2: number
     ): {
-        player1PDF: PDFFunction;
-        player2PDF: PDFFunction;
+        CDF: NumToNumFunction;
+        PDF: NumToNumFunction;
         a: number;
         b: number;
     } {
         const player1Distribution = this.profiles[player1].player;
         const player2Distribution = this.profiles[player2].player;
-        const player1PDF = (x: number) => player1Distribution.getProbability(x);
-        const player2PDF = (x: number) => player2Distribution.getProbability(x);
+        const PDF = (x: number) => player2Distribution.getProbability(x);
+        const CDF = (x: number) =>
+            player1Distribution.getAccumulatedProbability(x);
 
-        const a = Math.min(
-            player1Distribution.invCDF(0.001),
-            player2Distribution.invCDF(0.001)
-        );
-        const b = Math.max(
-            player1Distribution.invCDF(0.999),
-            player2Distribution.invCDF(0.999)
-        );
+        const a = player2Distribution.invCDF(0.0001);
+        const b = player2Distribution.invCDF(0.9999);
 
-        return { player1PDF, player2PDF, a, b };
+        return { CDF, PDF, a, b };
     }
 }
 

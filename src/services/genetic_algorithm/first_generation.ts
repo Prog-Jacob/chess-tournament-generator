@@ -12,7 +12,7 @@ export function generateSamples(
     numberOfPlayers: number,
     numberOfRounds: number
 ): Tournament[] {
-    const totalTournaments: Set<Tournament> = new Set();
+    const totalTournaments: Set<string> = new Set();
     const memo: Set<Tournament>[][] = Array.from(
         { length: numberOfRounds + 1 },
         () => []
@@ -25,7 +25,7 @@ export function generateSamples(
     ): Set<Tournament> {
         if (round > numberOfRounds) return new Set();
         if (round === numberOfRounds) {
-            totalTournaments.add(tournament);
+            totalTournaments.add(JSON.stringify(tournament));
             return new Set([tournament]);
         }
 
@@ -35,7 +35,7 @@ export function generateSamples(
         if (memo[rounds][players] !== undefined) {
             for (const nextTournament of memo[rounds][players].values()) {
                 const finalTournament = [...tournament, ...nextTournament];
-                totalTournaments.add(finalTournament);
+                totalTournaments.add(JSON.stringify(finalTournament));
                 tournaments.add(finalTournament);
             }
             return tournaments;
@@ -62,7 +62,9 @@ export function generateSamples(
     }
 
     dp(0, numberOfPlayers, []);
-    return shuffleArray([...totalTournaments]);
+    return shuffleArray(
+        [...totalTournaments].map((tournament) => JSON.parse(tournament))
+    );
 }
 
 function getGenerators(): TournamentGenerator[] {
