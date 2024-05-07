@@ -33,50 +33,50 @@ const PerformanceDistributionPlot: React.FC<
 
         setPlotData([
             {
-                type: "scatter",
                 mode: "lines",
+                type: "scatter",
                 x: xPerformance,
                 y: yPerformance,
-                line: { color: performance_color },
+                text: CDFValues,
                 name: "Performance PDF",
-                yaxis: "y1",
+                hoverlabel: { bgcolor: "white" },
+                line: { color: performance_color },
                 hovertemplate:
                     "P(X <= %{x:.0f} ELO) is %{text:.2f}%<br>" +
                     "<extra></extra>",
-                text: CDFValues,
-                hoverlabel: { bgcolor: "white" },
+                yaxis: "y1",
             },
             {
-                x: [player.getMean()],
                 y: [player.getProbability(player.getMean())],
+                x: [player.getMean()],
+                marker: { size: 10 },
+                hoverinfo: "skip",
                 mode: "markers",
                 type: "scatter",
-                marker: { size: 10 },
                 name: "Mean",
-                hoverinfo: "skip",
             },
             {
-                x: [player.invCDF(0.5)],
                 y: [player.getProbability(player.invCDF(0.5))],
+                x: [player.invCDF(0.5)],
+                marker: { size: 10 },
+                hoverinfo: "skip",
                 mode: "markers",
                 type: "scatter",
-                marker: { size: 10 },
                 name: "Median",
-                hoverinfo: "skip",
             },
             {
-                type: "scatter",
-                mode: "lines",
                 x: range,
                 y: ratings,
-                line: { color: rating_color },
+                mode: "lines",
                 name: "Rating",
+                type: "scatter",
                 yaxis: "y2",
                 hoverinfo: "y",
+                line: { color: rating_color },
                 hovertemplate: "%{y:.0f} ELO" + "<extra></extra>",
             },
         ]);
-    }, []);
+    }, [player]);
 
     return (
         <div>
@@ -86,12 +86,12 @@ const PerformanceDistributionPlot: React.FC<
                     title: player.getName(),
                     xaxis: { color: "black" },
                     yaxis: {
-                        color: performance_color,
                         side: "left",
                         overlaying: "y2",
+                        color: performance_color,
                     },
-                    yaxis2: { color: rating_color, side: "right" },
                     legend: { orientation: "h" },
+                    yaxis2: { color: rating_color, side: "right" },
                 }}
                 config={{ displaylogo: false }}
             />

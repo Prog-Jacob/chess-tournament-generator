@@ -1,4 +1,4 @@
-import { AppBar, Toolbar, Typography } from "@mui/material";
+import { AppBar, Button, Link, Toolbar, Typography } from "@mui/material";
 import React from "react";
 
 function Header() {
@@ -8,13 +8,16 @@ function Header() {
             sx={{ marginBottom: "1rem", backgroundColor: "var(--secondary)" }}
         >
             <Toolbar>
-                <Typography
+                <Button
                     sx={{ margin: "auto" }}
-                    variant="h6"
                     color="inherit"
+                    component={Link}
+                    href="/"
                 >
-                    Chess Tournament Generator
-                </Typography>
+                    <Typography color="inherit" variant="h6">
+                        Chess Tournament Generator
+                    </Typography>
+                </Button>
             </Toolbar>
         </AppBar>
     );

@@ -1,96 +1,46 @@
+import GeneticAlgorithm from "../services/genetic_algorithm/genetic_algorithm";
+import { PlayerParameters, PlayerProfile } from "../types/player";
+import { Format as FormatType } from "../types/formats";
+import ProgressPlot from "../components/ProgressPlot";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { PlayerParameters, PlayerProfile } from "../types/player";
-import Player from "../services/player";
-import GeneticAlgorithm from "../services/genetic_algorithm/genetic_algorithm";
+import RatingPlot from "../components/RatingPlot";
 import { shuffleArray } from "../utils/array";
+import { mapToFormat } from "../utils/format";
+import Format from "../components/Format";
+import Player from "../services/player";
+import { FaPlay } from "react-icons/fa";
+import Title from "../components/Title";
 import {
     Box,
-    Button,
     Grid,
-    IconButton,
     Paper,
+    Button,
     TextField,
+    IconButton,
     Typography,
 } from "@mui/material";
-import { FaPlay } from "react-icons/fa";
-import RatingPlot from "../components/RatingPlot";
-import { Format as FormatType } from "../types/formats";
-import { isRobin, isSwiss } from "../utils/tournament_types_map";
 
 export interface FormatProps {
     type: string;
+    topCut: number;
     players: number;
     matches: number;
     gamesPerMatch: number;
-    topCut: number;
 }
-
-function Format({ format }: { format: FormatProps }) {
-    const { type, players, matches, gamesPerMatch, topCut } = format;
-
-    return (
-        <Box
-            sx={{
-                p: 2,
-                border: 2,
-                borderRadius: 2,
-                boxShadow: 1,
-            }}
-        >
-            <Typography variant="h4" fontWeight="medium">
-                {type}
-            </Typography>
-            <Typography variant="h6" color="text.secondary">
-                Players: {players}
-            </Typography>
-            <Typography variant="h6" color="text.secondary">
-                Matches: {matches}
-            </Typography>
-            <Typography variant="h6" color="text.secondary">
-                Qualifiers: {topCut}
-            </Typography>
-            <Typography variant="h6" color="text.secondary">
-                Games Per Match: {gamesPerMatch}
-            </Typography>
-        </Box>
-    );
-}
-
-const mapToFormat = (format: FormatType, players: number): FormatProps => {
-    let props;
-    if (isRobin(format)) {
-        props = { players, ...format, type: "Round Robin" };
-    } else if (isSwiss(format)) {
-        props = { players, ...format, gamesPerMatch: 1, type: "Swiss System" };
-    } else {
-        let topCut = players;
-        for (let i = 0; i < format.matches; i++) {
-            topCut = Math.floor((topCut + 1) / 2);
-        }
-        props = {
-            players: players,
-            ...format,
-            gamesPerMatch: 2,
-            topCut,
-            type: "Single Elimination",
-        };
-    }
-
-    return props;
-};
 
 const Results = () => {
+    const [searchParams] = useSearchParams();
     const [mode, setMode] = useState<string>();
     const [round, setRound] = useState<number>();
-    const [players, setPlayers] = useState<PlayerProfile[]>([]);
     const [geneticAlgorithm, setGeneticAlgorithm] =
         useState<GeneticAlgorithm>();
-    const [searchParams] = useSearchParams();
     const [input, setInput] = useState<string>("");
     const [showCount, setShowCount] = useState(10);
+    const [progress, setProgress] = useState<number[]>([]);
     const [standings, setStandings] = useState<Player[]>();
     const [generation, setGeneration] = useState<number>(0);
+    const [players, setPlayers] = useState<PlayerProfile[]>([]);
 
     useEffect(() => {
         const roundParam = parseInt(searchParams.get("rounds") || "10");
@@ -128,14 +78,17 @@ const Results = () => {
 
     const handleAdvancingGeneration = () => {
         const num = parseInt(input);
-        if (isNaN(num) || num < 1 || num > 20) {
-            alert("Please enter a valid number between 1 and 20.");
+        if (isNaN(num) || num < 1 || num > 100) {
+            alert("Please enter a valid number between 1 and 100.");
         } else {
             geneticAlgorithm?.advanceGenerationBy(num);
             setGeneration((generation) => generation + num);
             setStandings(() => [
                 ...(geneticAlgorithm?.getTournamentResults() || []),
             ]);
+            setProgress(
+                (progress) => geneticAlgorithm?.getProgress() || progress
+            );
         }
     };
 
@@ -156,15 +109,26 @@ const Results = () => {
             {mode && round ? (
                 <Box
                     sx={{
-                        mt: 4,
                         display: "flex",
                         flexDirection: "column",
                         justifyContent: "center",
                         alignItems: "center",
                     }}
                 >
-                    <Grid container spacing={4}>
-                        <Grid item xs={12} sm={6}>
+                    <Box
+                        sx={{
+                            mt: 4,
+                            position: "fixed",
+                            top: "50px",
+                            left: "30px",
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            zIndex: 1000,
+                        }}
+                    >
+                        <Grid item xs={12} sm={6} mb={2}>
                             <Paper
                                 sx={{
                                     p: 3,
@@ -195,7 +159,7 @@ const Results = () => {
                                     variant="h5"
                                     color="var(--secondary)"
                                 >
-                                    Round: {round}
+                                    Rounds: {round}
                                 </Typography>
                             </Paper>
                         </Grid>
@@ -203,15 +167,15 @@ const Results = () => {
                             <Paper
                                 sx={{
                                     p: 3,
-                                    borderRadius: 2,
                                     boxShadow: 2,
+                                    borderRadius: 2,
                                     backgroundColor: "#f7f7f7",
                                 }}
                             >
                                 <TextField
+                                    type="number"
                                     id="standard-number"
                                     label="Advance Generations"
-                                    type="number"
                                     value={input}
                                     onChange={handleChange}
                                     sx={{ width: "100%", mb: 2 }}
@@ -231,122 +195,110 @@ const Results = () => {
                                 </IconButton>
                             </Paper>
                         </Grid>
-                    </Grid>
-                    <Typography
-                        variant="h5"
-                        sx={{
-                            margin: "auto",
-                            textAlign: "center",
-                            width: "fit-content",
-                            padding: "10px 20px",
-                            backgroundColor: "var(--secondary)",
-                            color: "var(--primary)",
-                            borderRadius: "50px",
-                            mt: 2,
-                            mb: 2,
-                        }}
-                    >
-                        Best Tournament
-                    </Typography>
-                    <Grid
-                        container
-                        spacing={4}
-                        sx={{
-                            display: "flex",
-                            flexDirection: "row",
-                            flexWrap: "wrap",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            maxWidth: "800px",
-                        }}
-                    >
-                        {(() => {
-                            let formatProps: FormatProps;
-                            const formats = geneticAlgorithm?.getFormat();
-                            return formats?.length ? (
-                                formats
-                                    .map((format: FormatType) => {
-                                        const numOfPlayers: number =
-                                            formatProps?.topCut ||
-                                            players.length;
-                                        formatProps = mapToFormat(
-                                            format,
-                                            numOfPlayers
-                                        );
-                                        return formatProps;
-                                    })
-                                    .map((format, i) => (
-                                        <Grid
-                                            item
-                                            xs={12}
-                                            sm={4}
-                                            key={format.type + i}
-                                        >
-                                            <Format format={format} />
-                                        </Grid>
-                                    ))
-                            ) : (
-                                <Typography
-                                    variant="body1"
+                    </Box>
+                    {(() => {
+                        let formatProps: FormatProps;
+                        const formats = geneticAlgorithm?.getFormat();
+                        return formats?.length ? (
+                            <Box
+                                sx={{
+                                    mt: 4,
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                }}
+                            >
+                                {!progress.length || (
+                                    <ProgressPlot progress={[...progress]} />
+                                )}
+                                <Title title="Suggested Tournament" />
+                                <Grid
+                                    container
+                                    spacing={4}
+                                    mb={4}
                                     sx={{
-                                        margin: "auto",
-                                        textAlign: "center",
-                                        mt: 3,
+                                        display: "flex",
+                                        flexDirection: "row",
+                                        flexWrap: "wrap",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        maxWidth: "800px",
                                     }}
                                 >
-                                    No formats found!
-                                </Typography>
-                            );
-                        })()}
-                    </Grid>
-                    <div
-                        style={{
-                            padding: "20px",
-                            borderRadius: "10px",
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "center",
-                            alignItems: "center",
-                        }}
-                    >
-                        <Typography
-                            variant="h5"
-                            sx={{
-                                margin: "auto",
-                                textAlign: "center",
-                                width: "fit-content",
-                                padding: "10px 20px",
-                                backgroundColor: "var(--secondary)",
-                                color: "var(--primary)",
-                                borderRadius: "50px",
-                                mt: 2,
-                            }}
-                        >
-                            Standings
-                        </Typography>
+                                    {formats
+                                        .map((format: FormatType) => {
+                                            const numOfPlayers: number =
+                                                formatProps?.topCut ||
+                                                players.length;
+                                            formatProps = mapToFormat(
+                                                format,
+                                                numOfPlayers
+                                            );
+                                            return formatProps;
+                                        })
+                                        .map((format, i) => (
+                                            <Grid
+                                                item
+                                                xs={12}
+                                                sm={4}
+                                                key={format.type + i}
+                                            >
+                                                <Format format={format} />
+                                            </Grid>
+                                        ))}
+                                </Grid>
+                                <div
+                                    style={{
+                                        padding: "20px",
+                                        borderRadius: "10px",
+                                        display: "flex",
+                                        flexDirection: "column",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                    }}
+                                >
+                                    <Title title="Standings" />
 
-                        {standings
-                            ?.slice(0, showCount)
-                            .map((player, index) => (
-                                <RatingPlot key={index} player={player} />
-                            ))}
-                    </div>
-                    <Button
-                        onClick={() => setShowCount(showCount + 10)}
-                        disabled={showCount >= players.length}
-                        sx={{
-                            margin: "auto",
-                            marginTop: "1rem",
-                            textAlign: "center",
-                            width: "fit-content",
-                            padding: "10px 20px",
-                            backgroundColor: "var(--secondary)",
-                            color: "var(--primary)",
-                            borderRadius: "50px",
-                        }}
-                    >
-                        Show More
-                    </Button>
+                                    {standings
+                                        ?.slice(0, showCount)
+                                        .map((player, index) => (
+                                            <RatingPlot
+                                                key={index}
+                                                player={player}
+                                            />
+                                        ))}
+                                </div>
+                                <Button
+                                    onClick={() => setShowCount(showCount + 10)}
+                                    disabled={showCount >= players.length}
+                                    sx={{
+                                        margin: "auto",
+                                        marginTop: "1rem",
+                                        textAlign: "center",
+                                        width: "fit-content",
+                                        padding: "10px 20px",
+                                        backgroundColor: "var(--secondary)",
+                                        color: "var(--primary)",
+                                        borderRadius: "50px",
+                                    }}
+                                >
+                                    Show More
+                                </Button>
+                            </Box>
+                        ) : (
+                            <Typography
+                                variant="body1"
+                                sx={{
+                                    margin: "auto",
+                                    textAlign: "center",
+                                    mt: 3,
+                                }}
+                            >
+                                No data found, try advancing generations!
+                            </Typography>
+                        );
+                    })()}
                 </Box>
             ) : (
                 <Typography variant="h5" color="text.secondary">

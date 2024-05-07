@@ -1,8 +1,8 @@
-import React from "react";
-import Plot from "react-plotly.js";
-import Player from "../services/player";
 import { useEffect, useState } from "react";
+import Player from "../services/player";
+import Plot from "react-plotly.js";
 import jstat from "jstat";
+import React from "react";
 
 interface PerformanceDistributionPlotProps {
     players: Player[];
@@ -22,8 +22,8 @@ const GroupPlot: React.FC<PerformanceDistributionPlotProps> = ({ players }) => {
                 );
 
                 return {
-                    type: "scatter",
                     mode: "lines",
+                    type: "scatter",
                     x: xPerformance,
                     y: yPerformance,
                     hoverinfo: "name",
@@ -31,7 +31,7 @@ const GroupPlot: React.FC<PerformanceDistributionPlotProps> = ({ players }) => {
                 };
             })
         );
-    }, []);
+    }, [players]);
 
     return (
         <div>
@@ -39,8 +39,8 @@ const GroupPlot: React.FC<PerformanceDistributionPlotProps> = ({ players }) => {
                 data={plotData}
                 layout={{
                     title: `First ${players.length} Players`,
-                    showlegend: false,
                     yaxis: { visible: false },
+                    showlegend: false,
                 }}
                 config={{ displaylogo: false }}
             />

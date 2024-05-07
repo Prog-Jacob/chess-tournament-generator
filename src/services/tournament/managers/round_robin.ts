@@ -3,8 +3,8 @@ import { PlayerProfile } from "../../../types/player";
 import TournamentManager from "./tournament_manager";
 
 class RoundRobinManager extends TournamentManager {
+    private gameHistory: Set<string>;
     private standings: PlayerProfile[];
-    private gameHistory: Set<[number, number]>;
 
     constructor(players: PlayerProfile[], format: RoundRobinFormat) {
         super(players, format);
@@ -26,24 +26,30 @@ class RoundRobinManager extends TournamentManager {
             const player2 = this.standings[N - 1 - i].id;
 
             if (player1 == player2) continue;
-            if (this.gameHistory.has([player1, player2])) {
+            if (this.gameHistory.has(JSON.stringify([player1, player2]))) {
                 throw new Error("Players have already played!");
             }
 
             this.pairings.set(player1, player2);
-            this.gameHistory.add([player1, player2]);
-            this.gameHistory.add([player2, player1]);
+            this.gameHistory.add(JSON.stringify([player1, player2]));
+            this.gameHistory.add(JSON.stringify([player2, player1]));
         }
     }
 
-    public playerWon(profile: PlayerProfile): void {
-        profile.gamesPlayed++;
-        profile.gamesWon++;
+    public playerWon(profile: PlayerProfile): PlayerProfile {
+        return {
+            ...profile,
+            gamesWon: profile.gamesWon + 1,
+            gamesPlayed: profile.gamesPlayed + 1,
+        };
     }
 
-    public playerLost(profile: PlayerProfile): void {
-        profile.gamesPlayed++;
-        profile.gamesLost++;
+    public playerLost(profile: PlayerProfile): PlayerProfile {
+        return {
+            ...profile,
+            gamesLost: profile.gamesLost + 1,
+            gamesPlayed: profile.gamesPlayed + 1,
+        };
     }
 
     public updateStandings(): void {
@@ -52,6 +58,9 @@ class RoundRobinManager extends TournamentManager {
         } else {
             this.standings.unshift(this.standings.pop()!);
         }
+        this.standings = this.standings.map(
+            (player) => this.profiles.get(player.id) as PlayerProfile
+        );
     }
 
     public matchUp(player1: number, player2: number): number {
@@ -95,12 +104,8 @@ class RoundRobinManager extends TournamentManager {
     private generateStandings() {
         if (this.roundCheck() || this.winners.length || this.losers.length)
             return;
-        const standings = [...this.profiles.values()].map((player) => ({
-            ...player,
-        }));
-
+        const standings = [...this.profiles.values()];
         standings.sort((a, b) => a.gamesWon - b.gamesWon);
-
         this.winners = standings.splice(
             -(this.format as RoundRobinFormat).topCut
         );

@@ -30,9 +30,9 @@ const Footer = () => {
                 {resources.map((resource, index) => (
                     <Typography
                         key={index}
-                        sx={{ margin: "auto" }}
                         variant="h6"
                         color="inherit"
+                        sx={{ margin: "auto" }}
                     >
                         <a style={{ color: "white" }} href={resource.link}>
                             {resource.name}

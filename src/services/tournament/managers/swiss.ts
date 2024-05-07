@@ -4,8 +4,8 @@ import TournamentManager from "./tournament_manager";
 
 class SwissManager extends TournamentManager {
     private isPlaying: Set<number>;
+    private gameHistory: Set<string>;
     private standings: PlayerProfile[];
-    private gameHistory: Set<[number, number]>;
 
     constructor(players: PlayerProfile[], format: SingleEliminationFormat) {
         super(players, format);
@@ -32,8 +32,8 @@ class SwissManager extends TournamentManager {
             this.isPlaying.add(player);
             this.isPlaying.add(opponent);
             this.pairings.set(player, opponent);
-            this.gameHistory.add([player, opponent]);
-            this.gameHistory.add([opponent, player]);
+            this.gameHistory.add(JSON.stringify([player, opponent]));
+            this.gameHistory.add(JSON.stringify([opponent, player]));
         }
     }
 
@@ -44,7 +44,7 @@ class SwissManager extends TournamentManager {
                 return (
                     player !== opponent &&
                     !this.isPlaying.has(opponent) &&
-                    !this.gameHistory.has([player, opponent])
+                    !this.gameHistory.has(JSON.stringify([player, opponent]))
                 );
             });
     }
@@ -54,14 +54,20 @@ class SwissManager extends TournamentManager {
         return Math.random() < winProbability ? player1 : player2;
     }
 
-    public playerWon(profile: PlayerProfile): void {
-        profile.gamesPlayed++;
-        profile.gamesWon++;
+    public playerWon(profile: PlayerProfile): PlayerProfile {
+        return {
+            ...profile,
+            gamesWon: profile.gamesWon + 1,
+            gamesPlayed: profile.gamesPlayed + 1,
+        };
     }
 
-    public playerLost(profile: PlayerProfile): void {
-        profile.gamesPlayed++;
-        profile.gamesLost++;
+    public playerLost(profile: PlayerProfile): PlayerProfile {
+        return {
+            ...profile,
+            gamesLost: profile.gamesLost + 1,
+            gamesPlayed: profile.gamesPlayed + 1,
+        };
     }
 
     public updateStandings(): void {
@@ -83,10 +89,8 @@ class SwissManager extends TournamentManager {
     private generateStandings() {
         if (this.roundCheck() || this.winners.length || this.losers.length)
             return;
-        const standings = this.standings.map((player) => ({ ...player }));
-
+        const standings = [...this.profiles.values()];
         standings.sort((a, b) => a.gamesWon - b.gamesWon);
-
         this.winners = standings.splice(-(this.format as SwissFormat).topCut);
         this.losers = standings;
     }

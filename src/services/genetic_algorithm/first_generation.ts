@@ -1,19 +1,20 @@
-import { Format } from "../../types/formats";
-import RoundRobinGenerator from "../tournament/generators/round_robin";
 import SingleEliminationGenerator from "../tournament/generators/single_elimination_round";
+import RoundRobinGenerator from "../tournament/generators/round_robin";
+import { Generator } from "../tournament/generators/generator";
+import { TournamentGenerator } from "../../types/tournament";
 import SwissGenerator from "../tournament/generators/swiss";
 import { shuffleArray } from "../../utils/array";
-import { TournamentGenerator } from "../../types/tournament";
+import { Format } from "../../types/formats";
 
-export type Tournament = Format[];
+export type TournamentType = Format[];
 
 export function generateSamples(
     generationSize: number,
     numberOfPlayers: number,
     numberOfRounds: number
-): Tournament[] {
+): TournamentType[] {
     const totalTournaments: Set<string> = new Set();
-    const memo: Set<Tournament>[][] = Array.from(
+    const memo: Set<TournamentType>[][] = Array.from(
         { length: numberOfRounds + 1 },
         () => []
     );
@@ -21,8 +22,8 @@ export function generateSamples(
     function dp(
         round: number,
         players: number,
-        tournament: Tournament
-    ): Set<Tournament> {
+        tournament: TournamentType
+    ): Set<TournamentType> {
         if (round > numberOfRounds) return new Set();
         if (round === numberOfRounds) {
             totalTournaments.add(JSON.stringify(tournament));
@@ -30,7 +31,7 @@ export function generateSamples(
         }
 
         const rounds = numberOfRounds - round;
-        const tournaments: Set<Tournament> = new Set();
+        const tournaments: Set<TournamentType> = new Set();
 
         if (memo[rounds][players] !== undefined) {
             for (const nextTournament of memo[rounds][players].values()) {
@@ -45,8 +46,8 @@ export function generateSamples(
             if (generator.canGenerateFormat(players, rounds)) {
                 const format = generator.generateRandomFormat(players, rounds);
                 const nextTournaments = dp(
-                    round + generator.getNumberOfRounds(format),
-                    generator.getNumberOfPlayers(format, players),
+                    round + Generator.getNumberOfRounds(format),
+                    Generator.getNumberOfPlayers(format, players),
                     [...tournament, format]
                 );
 

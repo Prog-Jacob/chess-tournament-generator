@@ -19,10 +19,8 @@ class SingleEliminationManager extends TournamentManager {
                 const player = standings[i];
                 if (player.didGoThorough) continue;
 
+                this.playerWon({ ...player, didGoThorough: true });
                 standings.splice(i, 1);
-                this.playerWon(player);
-                player.didGoThorough = true;
-                this.profiles.set(player.id, player);
                 break;
             }
         }
@@ -47,19 +45,30 @@ class SingleEliminationManager extends TournamentManager {
         return match1 ? player1 : player2;
     }
 
-    public playerWon(profile: PlayerProfile): void {
-        this.winners.push(profile);
-        profile.gamesPlayed++;
-        profile.gamesWon++;
+    public playerWon(profile: PlayerProfile): PlayerProfile {
+        const newProfile = {
+            ...profile,
+            gamesWon: profile.gamesWon + 1,
+            gamesPlayed: profile.gamesPlayed + 1,
+        };
+        this.winners.push(newProfile);
+        return newProfile;
     }
 
-    public playerLost(profile: PlayerProfile): void {
-        profile.status = "removed";
-        profile.gamesPlayed++;
-        profile.gamesLost++;
+    public playerLost(profile: PlayerProfile): PlayerProfile {
+        return {
+            ...profile,
+            status: "removed",
+            gamesLost: profile.gamesLost + 1,
+            gamesPlayed: profile.gamesPlayed + 1,
+        };
     }
 
-    public updateStandings(): void {}
+    public updateStandings(): void {
+        this.winners = this.winners.map(
+            (player) => this.profiles.get(player.id) as PlayerProfile
+        );
+    }
 
     public getLosers(): PlayerProfile[] {
         return [...this.profiles.values()]
