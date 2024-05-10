@@ -75,13 +75,13 @@ class GeneticAlgorithm {
 
     private crossover() {
         const generation = [...this.generation].map((x) => this.parse(x));
-        const newGeneration: Map<string, number> = new Map();
+        const newGeneration: Set<string> = new Set();
+        const n = generation.length - 1;
 
-        const addChildToGeneration = (
+        const mixChromosomesAndAddToGeneration = (
             firstHalf: TournamentType,
             qualifiers: number,
             round: number,
-            rank: number,
             i: number
         ) => {
             const idx = generation[i].rounds.get(round)![0];
@@ -97,61 +97,58 @@ class GeneticAlgorithm {
             if (tournament.formats.length == 0) {
                 return;
             }
-
-            const tournamentStr = this.stringify(tournament);
-            const minRank = Math.min(
-                rank,
-                newGeneration.get(tournamentStr) || Infinity
-            );
-            newGeneration.set(tournamentStr, minRank);
+            addToGeneration(this.stringify(tournament));
         };
 
-        for (let i = 0; i < generation.length - 1; i += 1) {
-            const { formats, rounds } = generation[i];
-            const { formats: formats2, rounds: rounds2 } = generation[i + 1];
-            const potentialRounds = [...rounds.entries()].filter((x) =>
-                rounds2.has(x[0])
-            );
-            if (
-                formats.length == 1 ||
-                potentialRounds.length == 0 ||
-                Math.random() < 0.1
-            ) {
-                newGeneration.set([...this.generation][i], i);
+        const addToGeneration = (tournamentStr: string) => {
+            if (newGeneration.has(tournamentStr)) return;
+            newGeneration.add(tournamentStr);
+        };
+
+        const isGenerationFull = () => {
+            return newGeneration.size < 2 * this.generationSize;
+        };
+
+        for (let rank = 0; rank < n && isGenerationFull(); rank++) {
+            for (let i = 0; i < rank / 2 && isGenerationFull(); i++) {
+                if (rank - i >= n) continue;
+                const j = rank - i;
+                const { formats, rounds } = generation[i];
+                const { formats: formats2, rounds: rounds2 } = generation[j];
+                const potentialRounds = [...rounds.entries()].filter((x) =>
+                    rounds2.has(x[0])
+                );
                 if (potentialRounds.length == 0) continue;
-            }
+                if (formats.length == 1) {
+                    addToGeneration([...this.generation][i]);
+                }
 
-            const [round, [idx, players]] =
-                potentialRounds[
-                    Math.floor(Math.random() * potentialRounds.length)
-                ];
-            const [idx2, players2] = rounds2.get(round)!;
+                const [round, [idx, players]] =
+                    potentialRounds[
+                        Math.floor(Math.random() * potentialRounds.length)
+                    ];
+                const [idx2, players2] = rounds2.get(round)!;
 
-            if (players >= players2) {
-                addChildToGeneration(
-                    formats.slice(0, idx),
-                    players,
-                    round,
-                    i,
-                    i + 1
-                );
-            }
-            if (players <= players2) {
-                addChildToGeneration(
-                    formats2.slice(0, idx2),
-                    players2,
-                    round,
-                    i,
-                    i
-                );
+                if (players >= players2) {
+                    mixChromosomesAndAddToGeneration(
+                        formats.slice(0, idx),
+                        players,
+                        round,
+                        j
+                    );
+                }
+                if (players <= players2) {
+                    mixChromosomesAndAddToGeneration(
+                        formats2.slice(0, idx2),
+                        players2,
+                        round,
+                        i
+                    );
+                }
             }
         }
 
-        this.generation = new Set(
-            [...newGeneration.entries()]
-                .sort((a, b) => a[1] - b[1])
-                .map((x) => x[0])
-        );
+        this.generation = newGeneration;
     }
 
     public advanceGenerationBy(generation: number) {
