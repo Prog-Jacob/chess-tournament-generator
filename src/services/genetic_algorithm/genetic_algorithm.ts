@@ -53,14 +53,17 @@ class GeneticAlgorithm {
                 tournament
             );
 
-            const fitness = manager
-                .getTournamentResult()
-                .reduce(
-                    (errAccumlator, player, rank) =>
-                        errAccumlator +
-                        (rank - this.playersRanks.get(player.id)!) ** 2,
-                    0
-                );
+            const fitness =
+                (manager
+                    .getTournamentResult()
+                    .reduce(
+                        (errAccumlator, player, rank) =>
+                            errAccumlator +
+                            (rank - this.playersRanks.get(player.id)!) ** 2,
+                        0
+                    ) /
+                    this.players.length) **
+                0.5;
             fittest.set(tournamentStr, fitness);
         }
 
@@ -68,9 +71,9 @@ class GeneticAlgorithm {
             .sort((a, b) => a[1] - b[1])
             .slice(0, this.generationSize);
 
-        this.progress.push(fittestSorted[0][1] / this.players.length);
-        this.generation = new Set(fittestSorted.map((x) => x[0]));
+        this.progress.push(fittestSorted[0][1]);
         this.fittest = this.parse(fittestSorted[0][0]).formats;
+        this.generation = new Set(fittestSorted.map((x) => x[0]));
     }
 
     private crossover() {
@@ -106,7 +109,7 @@ class GeneticAlgorithm {
         };
 
         const isGenerationFull = () => {
-            return newGeneration.size < 2 * this.generationSize;
+            return newGeneration.size < this.generationSize;
         };
 
         for (let rank = 0; rank < n && isGenerationFull(); rank++) {
@@ -166,8 +169,8 @@ class GeneticAlgorithm {
                     );
             }
             this.selectFittest();
-            this.reinsertion();
             this.crossover();
+            this.reinsertion();
         }
     }
 
@@ -197,26 +200,34 @@ class GeneticAlgorithm {
     }
 
     private reinsertion() {
-        const generation = [...this.generation]
-            .map((x) => this.parse(x))
-            .slice(0, 5);
+        // const generation = [...this.generation]
+        //     .map((x) => this.parse(x))
+        //     .slice(0, 5);
 
-        for (const { formats, rounds } of generation) {
-            if (rounds.size == 0) continue;
-            const i = Math.floor(Math.random() * rounds.size);
-            const [round, [idx, players]] = [...rounds.entries()][i];
+        // for (const { formats, rounds } of generation) {
+        //     if (rounds.size == 0) continue;
+        //     const i = Math.floor(Math.random() * rounds.size);
+        //     const [round, [idx, players]] = [...rounds.entries()][i];
 
-            const tournament = this.preprocessFormats([
-                ...formats.slice(0, idx),
-                ...(generateSamples(
-                    1,
-                    players,
-                    this.numberOfRounds - round
-                )[0] ?? []),
-            ]);
-            if (tournament.formats.length == 0) continue;
-            this.generation.add(this.stringify(tournament));
-        }
+        //     const tournament = this.preprocessFormats([
+        //         ...formats.slice(0, idx),
+        //         ...(generateSamples(
+        //             1,
+        //             players,
+        //             this.numberOfRounds - round
+        //         )[0] ?? []),
+        //     ]);
+        //     if (tournament.formats.length == 0) continue;
+        //     this.generation.add(this.stringify(tournament));
+        // }
+
+        generateSamples(10, this.players.length, this.numberOfRounds)
+            .slice(5)
+            .forEach((sample) =>
+                this.generation.add(
+                    this.stringify(this.preprocessFormats(sample))
+                )
+            );
     }
 
     public getProgress(): number[] {
