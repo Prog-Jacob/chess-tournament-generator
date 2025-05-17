@@ -14,7 +14,7 @@ export interface Sample {
 }
 
 class GeneticAlgorithm {
-    private generation: Set<string> = new Set();
+    private generation: Map<string, number> = new Map();
     private fittest: TournamentType = [];
     private progress: number[] = [];
 
@@ -46,7 +46,7 @@ class GeneticAlgorithm {
         const fittest: Map<string, number> = new Map();
 
         for (const tournamentStr of this.generation) {
-            const tournament = this.parse(tournamentStr).formats;
+            const tournament = this.parse(tournamentStr[0]).formats;
 
             const manager = new Tournament(
                 this.players.map((p) => ({ ...p })),
@@ -64,22 +64,59 @@ class GeneticAlgorithm {
                     ) /
                     this.players.length) **
                 0.5;
-            fittest.set(tournamentStr, fitness);
+            fittest.set(tournamentStr[0], fitness);
         }
 
-        const fittestSorted = [...fittest.entries()]
-            .sort((a, b) => a[1] - b[1])
-            .slice(0, this.generationSize);
+        const fittestSample = [...fittest].reduce((acc, curr) =>
+            acc[1] < curr[1] ? acc : curr
+        );
+        this.progress.push(fittestSample[1]);
+        this.generation = fittest;
+        this.fittest = this.parse(fittestSample[0]).formats;
+    }
 
-        this.progress.push(fittestSorted[0][1]);
-        this.fittest = this.parse(fittestSorted[0][0]).formats;
-        this.generation = new Set(fittestSorted.map((x) => x[0]));
+    private drawRouletteWheel(costs: number[]): number {
+        const totalCost = costs[costs.length - 1];
+        const random = Math.random() * totalCost;
+        let r = costs.length;
+        let l = 0;
+
+        while (l < r) {
+            const m = (l + r) >> 1;
+            if (random < costs[m]) {
+                if (r == m)
+                    throw new Error(
+                        `Invalid roulette wheel ${costs} and ${random}`
+                    );
+                r = m;
+            } else {
+                l = m + 1;
+            }
+        }
+
+        if (l == costs.length) {
+            throw new Error(
+                `Invalid roulette wheel ${costs} and ${random} and ${l}`
+            );
+        }
+        return l;
     }
 
     private crossover() {
-        const generation = [...this.generation].map((x) => this.parse(x));
-        const newGeneration: Set<string> = new Set();
-        const n = generation.length - 1;
+        const generation: Sample[] = [...this.generation].map((x) =>
+            this.parse(x[0])
+        );
+        const generationStr: string[] = [...this.generation].map((x) => x[0]);
+
+        let totalCost = 0;
+        const highestCost = [...this.generation].reduce(
+            (acc, curr) => Math.max(acc, curr[1]),
+            0
+        );
+        const costs = [...this.generation].map(
+            (sample) => (totalCost += highestCost - sample[1])
+        );
+        const newGeneration: Map<string, number> = new Map();
 
         const mixChromosomesAndAddToGeneration = (
             firstHalf: TournamentType,
@@ -105,49 +142,47 @@ class GeneticAlgorithm {
 
         const addToGeneration = (tournamentStr: string) => {
             if (newGeneration.has(tournamentStr)) return;
-            newGeneration.add(tournamentStr);
+            newGeneration.set(tournamentStr, 0);
         };
 
         const isGenerationFull = () => {
             return newGeneration.size < this.generationSize;
         };
 
-        for (let rank = 0; rank < n && isGenerationFull(); rank++) {
-            for (let i = 0; i < rank / 2 && isGenerationFull(); i++) {
-                if (rank - i >= n) continue;
-                const j = rank - i;
-                const { formats, rounds } = generation[i];
-                const { formats: formats2, rounds: rounds2 } = generation[j];
-                const potentialRounds = [...rounds.entries()].filter((x) =>
-                    rounds2.has(x[0])
+        while (isGenerationFull()) {
+            const i = this.drawRouletteWheel(costs);
+            const j = this.drawRouletteWheel(costs);
+            const { formats, rounds } = generation[i];
+            const { formats: formats2, rounds: rounds2 } = generation[j];
+            const potentialRounds = [...rounds.entries()].filter((x) =>
+                rounds2.has(x[0])
+            );
+            if (potentialRounds.length == 0) continue;
+            if (formats.length == 1) {
+                addToGeneration(generationStr[i]);
+            }
+
+            const [round, [idx, players]] =
+                potentialRounds[
+                    Math.floor(Math.random() * potentialRounds.length)
+                ];
+            const [idx2, players2] = rounds2.get(round)!;
+
+            if (players >= players2) {
+                mixChromosomesAndAddToGeneration(
+                    formats.slice(0, idx),
+                    players,
+                    round,
+                    j
                 );
-                if (potentialRounds.length == 0) continue;
-                if (formats.length == 1) {
-                    addToGeneration([...this.generation][i]);
-                }
-
-                const [round, [idx, players]] =
-                    potentialRounds[
-                        Math.floor(Math.random() * potentialRounds.length)
-                    ];
-                const [idx2, players2] = rounds2.get(round)!;
-
-                if (players >= players2) {
-                    mixChromosomesAndAddToGeneration(
-                        formats.slice(0, idx),
-                        players,
-                        round,
-                        j
-                    );
-                }
-                if (players <= players2) {
-                    mixChromosomesAndAddToGeneration(
-                        formats2.slice(0, idx2),
-                        players2,
-                        round,
-                        i
-                    );
-                }
+            }
+            if (players <= players2) {
+                mixChromosomesAndAddToGeneration(
+                    formats2.slice(0, idx2),
+                    players2,
+                    round,
+                    i
+                );
             }
         }
 
@@ -165,7 +200,7 @@ class GeneticAlgorithm {
                     .map((formats) => this.preprocessFormats(formats))
                     .filter((tournament) => tournament.formats.length)
                     .forEach((tournament) =>
-                        this.generation.add(this.stringify(tournament))
+                        this.generation.set(this.stringify(tournament), 0)
                     );
             }
             this.selectFittest();
@@ -224,8 +259,9 @@ class GeneticAlgorithm {
         generateSamples(10, this.players.length, this.numberOfRounds)
             .slice(5)
             .forEach((sample) =>
-                this.generation.add(
-                    this.stringify(this.preprocessFormats(sample))
+                this.generation.set(
+                    this.stringify(this.preprocessFormats(sample)),
+                    0
                 )
             );
     }
