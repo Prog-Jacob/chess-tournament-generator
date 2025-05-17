@@ -3,7 +3,6 @@
     <head>
         <meta charset="utf-8" />
         <link rel="icon" href="%PUBLIC_URL%/favicn.ico" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#000000" />
         <meta
             name="description"
@@ -22,4 +21,15 @@
         <noscript>You need to enable JavaScript to run this app.</noscript>
         <div id="root"></div>
     </body>
+    <script>
+        (function () {
+            const targetWidth = 1200;
+            const scale = window.innerWidth / targetWidth;
+
+            const meta = document.createElement("meta");
+            meta.name = "viewport";
+            meta.content = `width=${targetWidth}, initial-scale=${scale}`;
+            document.head.appendChild(meta);
+        })();
+    </script>
 </html>
